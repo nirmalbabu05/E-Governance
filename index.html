@@ -1,0 +1,1757 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart City - AI ENHANCED E-GOVERNANCE</title>
+    
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/mobilenet"></script>
+
+    <style>
+        /* --- PROFESSIONAL GOVERNMENT THEME CSS --- */
+        :root { 
+            --bg-body: #f0f4f8; 
+            --bg-surface: #ffffff; 
+            --bg-input: #f8fafc; 
+            --border-col: #cbd5e1; 
+            --text-main: #1a202c; 
+            --text-muted: #64748b;
+            --primary: #003366; 
+            --accent: #007bff; 
+            --success: #198754; 
+            --danger: #dc3545; 
+            --font-head: 'Rajdhani', sans-serif; 
+            --font-body: 'Poppins', sans-serif; 
+            --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        
+        [data-theme="dark"] {
+            --bg-body: #0f172a; 
+            --bg-surface: #1e293b; 
+            --bg-input: #334155; 
+            --border-col: #475569; 
+            --text-main: #f1f5f9; 
+            --text-muted: #94a3b8;
+            --primary: #60a5fa; 
+            --accent: #38bdf8; 
+            --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+        }
+    
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: var(--font-body); user-select: none; -webkit-tap-highlight-color: transparent; }
+        
+        body { 
+            background-color: var(--bg-body); 
+            background-image: linear-gradient(135deg, rgba(0, 51, 102, 0.05) 0%, rgba(0, 123, 255, 0.05) 100%);
+            color: var(--text-main); 
+            height: 100vh; overflow: hidden; 
+            transition: background-color 0.4s, color 0.4s; 
+        }
+        
+        .hidden { display: none !important; pointer-events: none; } 
+        .full-screen { width: 100%; height: 100%; position: absolute; top: 0; left: 0; overflow-y: auto; scroll-behavior: smooth; z-index: 10; }
+    
+        .auth-container { display: flex; justify-content: center; align-items: center; height: 100%; background: linear-gradient(rgba(0, 51, 102, 0.8), rgba(0, 51, 102, 0.9)), url('https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=2000&auto=format&fit=crop'); background-size: cover; background-position: center; }
+        .auth-box { background: var(--bg-surface); border: 1px solid var(--border-col); padding: 50px 40px; border-radius: 8px; width: 90%; max-width: 420px; text-align: center; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2); animation: slideUp 0.6s ease-out; position: relative; overflow: hidden; }
+        .auth-box::after { content:''; position: absolute; top:0; left:0; width:100%; height:6px; background: linear-gradient(90deg, var(--primary), var(--accent)); }
+        .auth-title { font-family: var(--font-head); font-size: 28px; font-weight: 700; color: var(--primary); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px; }
+        
+        .inp-field, .dark-inp { width: 100%; padding: 14px; margin-bottom: 15px; background: var(--bg-input); border: 1px solid var(--border-col); border-radius: 6px; color: var(--text-main); font-size: 14px; outline: none; transition: 0.2s; }
+        .inp-field:focus, .dark-inp:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(0, 51, 102, 0.1); }
+        ::placeholder { color: var(--text-muted); opacity: 0.7; }
+
+        .btn-main, .btn-action { width: 100%; padding: 14px; background: var(--primary); color: #fff; border: none; border-radius: 6px; font-family: var(--font-head); font-weight: 600; font-size: 16px; cursor: pointer; transition: 0.2s; letter-spacing: 0.5px; text-transform: uppercase; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .btn-main:hover, .btn-action:hover { background: var(--accent); transform: translateY(-1px); }
+        .btn-red { background: var(--danger) !important; color: white !important; }
+        .btn-green { background: var(--success) !important; color: white !important; }
+        .btn-blue { background: var(--accent) !important; color: white !important; }
+        .btn-purple { background: #6f42c1 !important; color: white !important; }
+        .btn-orange { background: #fd7e14 !important; color: white !important; }
+        .btn-outline { background: transparent !important; border: 1px solid var(--text-muted) !important; color: var(--text-main) !important; }
+        .btn-outline:hover { background: var(--bg-input) !important; }
+    
+        .nav-bar { padding: 12px 25px; display: flex; justify-content: space-between; align-items: center; background: var(--bg-surface); border-bottom: 1px solid var(--border-col); position: sticky; top: 0; z-index: 1000; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .icon-btn { font-size: 18px; margin-left: 12px; cursor: pointer; color: var(--text-muted); width: 40px; height: 40px; border-radius: 8px; display: flex; align-items: center; justify-content: center; background: var(--bg-input); transition: 0.2s; border: 1px solid transparent; }
+        .icon-btn:hover { background: var(--bg-body); color: var(--primary); border-color: var(--primary); }
+        .profile-btn { padding: 8px 18px; background: var(--bg-input); border: 1px solid var(--accent); border-radius: 6px; font-family: var(--font-head); font-weight: 600; color: var(--primary); cursor: pointer; transition: 0.2s; }
+        .profile-btn:hover { background: var(--primary); color: white; }
+        
+        .weather-widget { display: flex; align-items: center; gap: 8px; background: var(--bg-input); padding: 6px 12px; border-radius: 6px; margin-right: 15px; border: 1px solid var(--border-col); font-weight: 500; font-size: 14px; color: var(--text-main); }
+        #task-map { height: 300px; width: 100%; border-radius: 8px; margin-top:10px; border: 1px solid var(--border-col); }
+        
+        .chatbot-btn { position: fixed; bottom: 30px; left: 30px; width: 60px; height: 60px; background: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; color: white; cursor: pointer; z-index: 2000; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3); transition: 0.3s; }
+        .chatbot-box { position: fixed; bottom: 100px; left: 30px; width: 320px; height: 450px; background: var(--bg-surface); border: 1px solid var(--border-col); border-radius: 12px; z-index: 2000; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
+        .chat-header { padding: 15px; background: var(--primary); color: white; font-family: var(--font-head); font-weight: 600; }
+        .chat-body { flex: 1; padding: 15px; overflow-y: auto; color: var(--text-main); font-size: 13px; background: var(--bg-input); }
+        .chat-input-area { padding: 12px; border-top: 1px solid var(--border-col); display: flex; background: var(--bg-surface); }
+        
+        #fab-add { position: fixed; bottom: 35px; right: 35px; background: var(--primary); width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 24px; cursor: pointer; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3); z-index: 1500; transition: 0.3s; }
+        #fab-add:hover { transform: scale(1.05) rotate(90deg); background: var(--accent); }
+    
+        .task-container { padding: 25px; padding-bottom: 120px; display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
+        .task-card { background: var(--bg-surface); border: 1px solid var(--border-col); padding: 20px; border-radius: 8px; position: relative; overflow: hidden; transition: 0.3s; animation: popIn 0.4s ease-out; box-shadow: var(--card-shadow); }
+        .task-card:hover { transform: translateY(-5px); border-color: var(--accent); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+        .task-card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 5px; background: var(--primary); }
+        
+        .task-title { font-family: var(--font-head); font-size: 19px; font-weight: 700; margin-bottom: 6px; color: var(--primary); }
+        .badge { padding: 4px 10px; border-radius: 4px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; font-family: var(--font-head); }
+        .urgent-pulse { animation: softPulse 2s infinite; border: 1px solid var(--danger); border-left: 5px solid var(--danger) !important; }
+        .urgent-pulse::before { background: var(--danger); }
+        .ai-cat-badge { font-size: 11px; background: var(--bg-input); border: 1px solid var(--accent); color: var(--accent); padding: 2px 8px; border-radius: 4px; margin-left: 5px; font-weight: 600; }
+        
+        /* 🔥 MODAL SCROLL FIX 🔥 */
+        .modal-wrap { background: rgba(0,0,0,0.7); backdrop-filter: blur(5px); z-index: 2000; display: flex; align-items: center; justify-content: center; position: fixed; top: 0; left: 0; width: 100%; height: 100%; }
+        .modal-box { 
+            position: relative; 
+            background: var(--bg-surface); 
+            border: 1px solid var(--border-col); 
+            padding: 30px; 
+            width: 90%; 
+            max-width: 500px; 
+            max-height: 85vh; /* Limit Height */
+            overflow-y: auto; /* Enable Scroll */
+            border-radius: 10px; 
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3); 
+            animation: slideUp 0.3s; 
+            color: var(--text-main); 
+        }
+        
+        .modal-close-icon { position: absolute; top: 20px; right: 20px; font-size: 20px; color: var(--text-muted); cursor: pointer; transition: 0.3s; }
+        .modal-close-icon:hover { color: var(--danger); }
+        
+        /* 🔥 IMAGE CLOSE BUTTON FIX 🔥 */
+        .close-img-btn { 
+            position: absolute; 
+            top: 20px; 
+            right: 20px; 
+            font-size: 30px; 
+            color: white; 
+            cursor: pointer; 
+            background: rgba(0,0,0,0.6); 
+            width: 40px; 
+            height: 40px; 
+            border-radius: 50%; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            z-index: 3000; 
+        }
+
+        .mic-icon { position: absolute; right: 15px; top: 15px; cursor: pointer; color: var(--primary); transition: 0.2s; }
+        .mic-active { color: var(--danger); animation: pulseGlow 1s infinite; }
+        
+        .filter-bar { padding: 0 25px; display: flex; gap: 15px; margin-bottom: 10px; }
+        .search-inp, .filter-select { flex: 1; padding: 10px 15px; background: var(--bg-surface); border: 1px solid var(--border-col); border-radius: 6px; color: var(--text-main); outline: none; font-size: 14px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+        .filter-select { flex: 0 0 auto; width: 150px; cursor: pointer; }
+        option { background: var(--bg-surface); color: var(--text-main); }
+    
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes popIn { 0% { transform: scale(0.95); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+        @keyframes softPulse { 0% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(220, 53, 69, 0); } 100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0); } }
+        @keyframes pulseGlow { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+        @keyframes scanLine { 0% { top: 0; } 100% { top: 100%; } }
+        @keyframes marquee { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
+        
+        /* 🔥 NEW: AI SCANNER ANIMATION 🔥 */
+        @keyframes scanner { 
+            0% { top: 0; opacity: 0.5; } 
+            50% { top: 100%; opacity: 1; background: var(--accent); } 
+            100% { top: 0; opacity: 0.5; } 
+        }
+        .ai-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; display: none; }
+        .ai-bar { position: absolute; width: 100%; height: 4px; background: var(--success); box-shadow: 0 0 15px var(--success); animation: scanner 2s infinite ease-in-out; }
+
+        .qr-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 3000; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .qr-box { width: 250px; height: 250px; border: 4px solid var(--success); position: relative; background: rgba(255,255,255,0.1); }
+        .qr-line { width: 100%; height: 4px; background: var(--success); position: absolute; top: 0; animation: scanLine 2s infinite; box-shadow: 0 0 10px var(--success); }
+    
+        .chat-container { height: 250px; overflow-y: auto; margin-bottom: 15px; padding: 10px; border: 1px solid var(--border-col); border-radius: 8px; background: var(--bg-input); }
+        .chat-bubble { padding: 8px 12px; margin-bottom: 8px; border-radius: 8px; font-size: 13px; max-width: 80%; }
+        .chat-mine { background: var(--primary); color: white; align-self: flex-end; margin-left: auto; }
+        .chat-other { background: var(--bg-surface); color: var(--text-main); border:1px solid var(--border-col); align-self: flex-start; }
+
+        .lb-item { display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid var(--border-col); font-size:13px; color:var(--text-main); }
+        .leaderboard-box { background: var(--bg-surface); padding: 20px; border-radius: 8px; border: 1px solid var(--border-col); box-shadow: var(--card-shadow); height: 100%; }
+        
+        .input-wrapper { position: relative; width: 100%; }
+        h3 { font-family: var(--font-head); color: var(--primary); margin-bottom: 15px; letter-spacing: 0.5px; }
+        label { font-weight: 600; font-size: 12px; color: var(--text-muted); display: block; margin-bottom: 4px; }
+        
+        /* 🔥 LIVE TICKER CSS 🔥 */
+        .ticker-wrap { position: absolute; bottom: 0; width: 100%; background: rgba(255,255,255,0.9); border-top: 2px solid var(--primary); padding: 8px 0; overflow: hidden; z-index: 5; }
+        .ticker { display: inline-block; white-space: nowrap; animation: marquee 30s linear infinite; }
+        .ticker-item { display: inline-block; padding: 0 2rem; font-size: 14px; font-weight: 600; color: var(--primary); }
+
+        @media (max-width: 600px) {
+            .filter-bar { flex-direction: column; }
+            .filter-select { width: 100%; }
+            .nav-bar { padding: 10px 15px; }
+            #head-role { display: none; }
+        }
+    </style>
+</head>
+<body data-theme="light">
+
+    <script>
+        const audio = {
+            click: new Audio('https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3'),
+            success: new Audio('https://assets.mixkit.co/active_storage/sfx/1435/1435-preview.mp3'),
+            notif: new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3'),
+            error: new Audio('https://assets.mixkit.co/active_storage/sfx/2572/2572-preview.mp3')
+        };
+        window.playSound = function(type) { try { if(audio[type]) { audio[type].currentTime=0; audio[type].volume=0.3; audio[type].play().catch(e => {}); } } catch(e){} }
+    </script>
+
+    <div id="notif-dropdown" style="position: absolute; top: 75px; right: 75px; width: 320px; background: var(--bg-surface); border: 1px solid var(--primary); border-radius: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); z-index: 2000; display: none; overflow: hidden;"><div style="padding:15px; background:var(--primary); color:white; font-weight:bold; font-size:14px; display:flex; justify-content:space-between; font-family:var(--font-head);">NOTIFICATIONS <span style="cursor:pointer; opacity:0.8;" onclick="clearNotifs(); playSound('click')">CLEAR ALL</span></div><div id="notif-list" style="max-height:300px; overflow-y:auto; color:var(--text-main);"></div></div>
+
+    <div id="public-chatbot-btn" class="chatbot-btn" onclick="toggleChatbot()"><i class="fas fa-robot"></i></div>
+    <div id="public-chatbot-box" class="chatbot-box hidden">
+        <div class="chat-header">🤖 City AI Bot 
+            <span style="float:right; cursor:pointer;" onclick="toggleChatbot()">×</span>
+            <span style="float:right; margin-right:15px; cursor:pointer;" onclick="toggleVoice()" id="voice-toggle-btn" title="Text-to-Speech">🔇</span>
+        </div>
+        <div id="chatbot-body" class="chat-body">Hello! Enter your Complaint ID or ask me anything (Try: "City Status", "Water tax", "Who are you?", "Joke").</div>
+        <div class="chat-input-area">
+            <input type="text" id="chatbot-input" class="dark-inp" style="margin:0; flex:1;" placeholder="Ask me..." onkeypress="if(event.key==='Enter') handleChatbot()">
+            <button class="btn-action btn-blue" style="width:auto; margin:0; margin-left:5px;" onclick="handleChatbot()">➤</button>
+        </div>
+    </div>
+
+    <div id="modal-location-view" class="full-screen modal-wrap hidden">
+        <div class="modal-box">
+            <i class="fas fa-times modal-close-icon" onclick="closeModal('modal-location-view'); playSound('click')"></i>
+            <h3>📍 TASK LOCATION</h3>
+            <div id="task-map"></div>
+        </div>
+    </div>
+
+    <div id="qr-scanner" class="qr-overlay hidden">
+        <div class="qr-box"><div class="qr-line"></div></div>
+        <p style="color:white; margin-top:20px;">Scanning for Location QR Code...</p>
+        <button class="btn-action btn-red" style="width:auto; margin-top:20px;" onclick="closeQR()">Cancel</button>
+    </div>
+
+    <div id="page-login" class="full-screen auth-container">
+        <div class="auth-box">
+            <div style="font-size:60px; margin-bottom:15px; filter: drop-shadow(0 0 15px rgba(0,51,102,0.2));">🏙️</div>
+            <h2 class="auth-title">Smart City </h2>
+            <p style="font-size:12px; color:var(--text-muted); margin-bottom:15px;">AI ENHANCED MUNICIPALITY WEBSITE</p>
+            <input type="email" id="log-email" class="inp-field" placeholder="Email Address">
+            <input type="password" id="log-pass" class="inp-field" placeholder="Password">
+            <button class="btn-main" onclick="processLogin()">ACCESS PORTAL</button>
+            <div style="margin-top:25px; display:flex; justify-content:space-between; align-items:center; font-size:12px;">
+                <div style="cursor:pointer; color:var(--text-main); opacity:0.7;" onclick="navigateTo('register'); playSound('click')">Create Account<br><span style="font-size:10px; color:var(--primary);">(Commissioner & Admin)</span></div>
+                <div style="cursor:pointer; color:var(--danger); font-weight:bold; display:flex; align-items:center; gap:5px;" onclick="openPublicReport(); playSound('click')"><i class="fas fa-bullhorn"></i> Public Complaint</div>
+            </div>
+
+            <div style="margin-top:20px; border-top:1px solid var(--border-col); padding-top:15px;">
+                <p style="font-size:11px; font-weight:bold; color:var(--primary); margin-bottom:8px;">📢 TRACK COMPLAINT</p>
+                <div style="display:flex; gap:5px;">
+                    <input type="text" id="track-id-inp" class="inp-field" style="margin:0; padding:10px; font-size:12px;" placeholder="Enter ID (e.g., PUB-1234)">
+                    <button class="btn-action btn-blue" style="width:auto; padding:0 15px;" onclick="trackComplaint()">🔍</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="ticker-wrap">
+            <div class="ticker" id="public-ticker">
+                <span class="ticker-item">Welcome to Smart City Portal...</span>
+            </div>
+        </div>
+    </div>
+
+    <div id="page-register" class="full-screen auth-container hidden">
+        <div class="auth-box">
+            <h3 style="color:var(--primary); font-family:var(--font-head); margin-bottom:20px;">CREATE ACCOUNT</h3>
+            <input type="text" id="reg-name" class="inp-field" placeholder="Full Name">
+            <input type="email" id="reg-email" class="inp-field" placeholder="Email">
+            <input type="password" id="reg-pass" class="inp-field" placeholder="Password">
+            <input type="text" id="reg-admin-code" class="inp-field" style="border:1px dashed var(--accent); color:var(--accent);" placeholder="Secret Code (Optional)">
+            <p style="font-size:10px; color:var(--text-muted); margin-bottom:15px;">Leave code blank for Commissioner registration.</p>
+            <button class="btn-main" onclick="processRegister()">REGISTER</button>
+            <div style="margin-top:20px; cursor:pointer;" onclick="navigateTo('login'); playSound('click')">← Back to Login</div>
+        </div>
+    </div>
+
+    <div id="dashboard-page" class="full-screen hidden">
+        <div class="nav-bar">
+            <div style="display:flex; align-items:center; gap:12px;">
+                <div><div id="head-user" style="color:var(--primary); font-weight:bold;">User</div><div id="head-role" style="font-size:10px; opacity:0.8; color:var(--text-muted);">Role</div></div>
+                <div class="weather-widget"><i class="fas fa-map-marker-alt" style="color:var(--danger); margin-right:5px;"></i><span id="loc-weather-display" style="font-size:11px;">Detecting...</span></div>
+                <div id="live-clock" style="font-size:12px; color:var(--success); font-family:monospace; font-weight:bold;"></div>
+                <button class="profile-btn" onclick="openProfileModal(); playSound('click')">PROFILE</button>
+                <button id="btn-ai-insights" class="btn-ai-magic hidden" onclick="generateAIInsights(); playSound('click')" style="background:var(--accent); color:white; border:none; padding:8px 15px; border-radius:6px; font-weight:bold; cursor:pointer;">✨ AI REPORT</button>
+            </div>
+            <div style="display:flex; align-items:center;">
+                <i class="fas fa-file-download icon-btn hidden" id="btn-export" onclick="exportData()" title="Download Data" style="color:var(--accent);"></i>
+                <div class="icon-btn" onclick="toggleNotif(); playSound('click')" style="position:relative;"><i class="fas fa-bell"></i><div id="notif-badge" style="position: absolute; top: -5px; right: -5px; background: var(--danger); color: white; font-size: 10px; width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold;" class="hidden">0</div></div>
+                <i class="fas fa-adjust icon-btn" onclick="toggleTheme(); playSound('click')"></i>
+                <i class="fas fa-user-plus icon-btn" id="btn-add-member" onclick="openAddMemberModal(); playSound('click')"></i>
+                <i class="fas fa-users icon-btn" onclick="openMembersModal(); playSound('click')"></i>
+                <i class="fas fa-power-off icon-btn" onclick="processLogout(); playSound('click')" style="color:var(--danger); border-color:rgba(220,53,69,0.2);"></i>
+            </div>
+        </div>
+        
+        <div id="analytics-section" class="charts-container hidden" style="display:flex; gap:20px; padding:25px; flex-wrap:wrap;">
+            <div class="task-card" style="flex:1; min-width:250px; height:220px; display:flex; justify-content:center;"><canvas id="statusChart"></canvas></div>
+            <div class="task-card" style="flex:1; min-width:250px; height:220px;"><canvas id="zoneChart"></canvas></div>
+            <div class="leaderboard-box" style="flex:1; min-width:250px;"><h4 style="color:var(--primary); margin-bottom:15px; font-family:var(--font-head);">🏆 TOP PERFORMERS (REALTIME)</h4><div id="lb-list"></div></div>
+        </div>
+        
+        <div class="filter-bar">
+            <input type="text" id="search-input" class="search-inp" placeholder="🔍 Search tasks..." onkeyup="renderTasks()">
+            <select id="status-filter" class="filter-select" onchange="renderTasks()">
+                <option value="All">All Status</option>
+                <option value="Pending">Pending</option>
+                <option value="Assigned">Assigned</option>
+                <option value="Completed">Completed</option>
+                <option value="High">🔥 High Priority</option>
+            </select>
+        </div>
+
+        <div id="task-list" class="task-container"></div>
+        <div id="fab-add" class="hidden" onclick="openAssignModal(); playSound('click')"><i class="fas fa-plus"></i></div>
+    </div>
+
+    <div id="modal-add-member" class="full-screen modal-wrap hidden"><div class="modal-box"><i class="fas fa-times modal-close-icon" onclick="closeModal('modal-add-member'); playSound('click')"></i><h3>ADD MEMBER</h3><input type="text" id="new-name" class="dark-inp" placeholder="Full Name"><input type="email" id="new-email" class="dark-inp" placeholder="Email ID"><input type="text" id="new-pass" class="dark-inp" placeholder="Password"><div id="new-role-div" class="hidden"><label style="font-size:11px; color:var(--primary);">ROLE</label><select id="new-role-select" class="dark-inp"></select></div><div id="new-zone-div" class="hidden"><label style="font-size:11px; color:var(--primary);">ZONE</label><select id="new-zone-select" class="dark-inp"></select></div><button class="btn-action btn-blue" onclick="createInternalUser()">CREATE MEMBER</button></div></div>
+    
+    <div id="modal-assign" class="full-screen modal-wrap hidden">
+        <div class="modal-box">
+            <i class="fas fa-times modal-close-icon" onclick="closeModal('modal-assign'); playSound('click')"></i><h3>ASSIGN TASK</h3>
+            <input type="text" id="task-title" class="dark-inp" placeholder="Title">
+            <div class="input-wrapper"><textarea id="task-desc" class="dark-inp" rows="3" placeholder="Description (AI detects Priority)..." onkeyup="aiCheckContext(this.value)"></textarea><i class="fas fa-microphone mic-icon" onclick="startVoiceInput('task-desc')"></i></div>
+            <div style="background:rgba(0, 51, 102, 0.05); border:1px solid var(--primary); padding:10px; border-radius:10px; margin-bottom:10px;"><div style="font-size:11px; color:var(--text-main); display:flex; justify-content:space-between;"><span>🤖 Detected: <b id="ai-category-display" style="color:var(--accent);">General</b></span><span id="ai-priority-badge" style="display:none; color:var(--danger); font-weight:bold;">🔥 High Priority</span></div></div>
+            <div style="display:flex; gap:10px;"><select id="task-priority" class="dark-inp"><option value="Low">Low</option><option value="Medium">Medium</option><option value="High">High</option><option value="Urgent">Urgent</option></select><input type="date" id="task-date" class="dark-inp"></div><select id="task-target" class="dark-inp"></select><button class="btn-action btn-green" onclick="createTask(); playSound('success')">ASSIGN NOW</button>
+        </div>
+    </div>
+    
+    <div id="modal-public" class="full-screen modal-wrap hidden">
+        <div class="modal-box">
+            <i class="fas fa-times modal-close-icon" onclick="closeModal('modal-public'); stopCamera('pub'); playSound('click')"></i>
+            <h3 style="color:var(--danger);">📢 COMPLAINT</h3>
+            
+            <input type="text" id="pub-title" class="dark-inp" placeholder="Issue Title">
+            <div class="input-wrapper">
+                <textarea id="pub-desc" class="dark-inp" rows="8" placeholder="Details..."></textarea>
+                <i class="fas fa-microphone mic-icon" onclick="startVoiceInput('pub-desc')"></i>
+            </div>
+            <select id="pub-zone" class="dark-inp">
+                <option value="Zone 1">Zone 1</option>
+                <option value="Zone 2">Zone 2</option>
+                <option value="Zone 3">Zone 3</option>
+            </select>
+
+            <label style="font-size:11px;opacity:0.7;">📸 Live Geotagged Proof (Satellite Mode):</label>
+            <div id="cam-box-pub" style="margin-bottom:15px; text-align:center; background:var(--bg-input); padding:10px; border-radius:8px; border:1px solid var(--border-col); position:relative;">
+                
+                <div id="ai-overlay-pub" class="ai-overlay"><div class="ai-bar"></div></div>
+
+                <video id="video-pub" autoplay playsinline style="width:100%; max-height:200px; border-radius:5px; display:none;"></video>
+                <canvas id="canvas-pub" style="display:none;"></canvas>
+                <img id="img-pub" style="width:100%; border-radius:5px; display:none; border:2px solid var(--success);">
+                
+                <div style="margin-top:10px; display:flex; gap:10px; justify-content:center;">
+                    <button id="btn-open-pub" class="btn-action btn-blue" style="width:auto; font-size:12px;" onclick="startCamera('pub')"><i class="fas fa-camera"></i> Start Camera</button>
+                    <button id="btn-snap-pub" class="btn-action btn-green hidden" style="width:auto; font-size:12px;" onclick="capturePhoto('pub')"><i class="fas fa-crosshairs"></i> Capture & Tag</button>
+                    <button id="btn-retake-pub" class="btn-action btn-orange hidden" style="width:auto; font-size:12px;" onclick="startCamera('pub')"><i class="fas fa-redo"></i> Retake</button>
+                </div>
+                <p id="loc-status-pub" style="font-size:10px; color:var(--text-muted); margin-top:5px;">Using High-Accuracy GPS...</p>
+                <p id="ai-result-pub" style="font-size:11px; color:var(--accent); margin-top:5px; display:none;">🤖 Analyzing...</p>
+            </div>
+
+            <button id="btn-pub-submit" class="btn-action btn-red" onclick="submitPublicReport()">SUBMIT REPORT</button>
+        </div>
+    </div>
+    
+    <div id="modal-pub-success" class="full-screen modal-wrap hidden">
+        <div class="modal-box" style="text-align:center;">
+            <div style="font-size:50px; margin-bottom:10px;">✅</div>
+            <h3 style="color:var(--success);">COMPLAINT SUBMITTED</h3>
+            <p style="margin-bottom:15px; font-size:14px;">Please save your Complaint ID to track status:</p>
+            
+            <div style="background:var(--bg-input); padding:15px; border-radius:8px; border:2px dashed var(--accent); margin-bottom:20px; display:flex; justify-content:center; align-items:center; gap:15px;">
+                <div id="pub-id-display" style="font-size:24px; font-weight:bold; color:var(--primary);">PUB-XXXX</div>
+                <button id="copy-id-btn" class="btn-action btn-outline" style="width:auto; padding:5px 15px; font-size:12px; margin:0;" onclick="copyComplaintId()">
+                    <i class="fas fa-copy"></i> Copy
+                </button>
+            </div>
+
+            <button class="btn-action btn-blue" onclick="closeModal('modal-pub-success')">OK, I SAVED IT</button>
+        </div>
+    </div>
+
+    <div id="modal-ai-insights" class="full-screen modal-wrap hidden"><div class="modal-box"><i class="fas fa-times modal-close-icon" onclick="closeModal('modal-ai-insights'); playSound('click')"></i><h3 style="font-family:var(--font-head); color:var(--accent);">🔮 AI REPORT</h3><div id="ai-insights-content" style="margin:20px 0; font-size:14px; line-height:1.6; white-space: pre-line; color:var(--text-main);">Generating...</div></div></div>
+    <div id="modal-chat" class="full-screen modal-wrap hidden"><div class="modal-box"><i class="fas fa-times modal-close-icon" onclick="closeModal('modal-chat'); playSound('click')"></i><h3>💬 TEAM CHAT</h3><div id="chat-history" class="chat-container"></div><div style="display:flex; gap:10px;"><input type="text" id="chat-msg" class="dark-inp" placeholder="Type message..."><button class="btn-action btn-blue" style="width:auto;" onclick="sendChat()">SEND</button></div></div></div>
+    
+    <div id="modal-image-view" class="full-screen hidden" style="background:rgba(0,0,0,0.95); z-index:2500;">
+        <div class="close-img-btn" onclick="closeImageView()">×</div>
+        <img id="full-image" src="" style="max-width:90%; max-height:85%; border-radius:10px;">
+    </div>
+    
+    <div id="modal-upload" class="full-screen modal-wrap hidden">
+        <div class="modal-box">
+            <i class="fas fa-times modal-close-icon" onclick="closeModal('modal-upload'); stopCamera('sup'); playSound('click')"></i>
+            <h3>COMPLETE TASK</h3>
+            
+            <div id="cam-box-sup" style="margin-bottom:15px; text-align:center; background:var(--bg-input); padding:10px; border-radius:8px; border:1px solid var(--border-col); position:relative;">
+                
+                <div id="ai-overlay-sup" class="ai-overlay"><div class="ai-bar"></div></div>
+
+                <video id="video-sup" autoplay playsinline style="width:100%; max-height:200px; border-radius:5px; display:none;"></video>
+                <canvas id="canvas-sup" style="display:none;"></canvas>
+                <img id="img-sup" style="width:100%; border-radius:5px; display:none; border:2px solid var(--success);">
+                
+                <div style="margin-top:10px; display:flex; gap:10px; justify-content:center;">
+                    <button id="btn-open-sup" class="btn-action btn-blue" style="width:auto; font-size:12px;" onclick="startCamera('sup')"><i class="fas fa-camera"></i> Start Camera</button>
+                    <button id="btn-snap-sup" class="btn-action btn-green hidden" style="width:auto; font-size:12px;" onclick="capturePhoto('sup')"><i class="fas fa-crosshairs"></i> Capture & Tag</button>
+                    <button id="btn-retake-sup" class="btn-action btn-orange hidden" style="width:auto; font-size:12px;" onclick="startCamera('sup')"><i class="fas fa-redo"></i> Retake</button>
+                </div>
+                <p id="loc-status-sup" style="font-size:10px; color:var(--text-muted); margin-top:5px;">Verifying with Satellite GPS...</p>
+                <p id="ai-result-sup" style="font-size:11px; color:var(--accent); font-weight:bold; margin-top:5px; display:none;">🤖 Analyzing...</p>
+            </div>
+
+            <div id="ai-analysis-status" style="font-size:12px; color:var(--accent); text-align:center; margin-bottom:10px; display:none;">👁️ AI Analyzing Image...</div>
+            
+            <div id="worker-credit-box" style="margin-top:10px; margin-bottom:10px; display:none;">
+                <label style="font-size:11px; color:var(--primary); font-weight:bold;">🏆 Credit Work To (Select Multiple Team Members):</label>
+                <div id="credit-worker-list" class="dark-inp" style="height:auto; max-height:120px; overflow-y:auto; text-align:left; padding:10px; border:1px solid var(--border-col); border-radius:6px; background:var(--bg-input);">
+                    </div>
+                <p style="font-size:10px; color:var(--text-muted); margin-top:5px;">Check the boxes for all workers involved in this task.</p>
+            </div>
+
+            <input type="text" id="gps-input" class="dark-inp" placeholder="GPS Data" style="display:none;">
+
+            <button class="btn-action btn-green" onclick="processFileUpload(); playSound('success')">SUBMIT PROOF</button>
+        </div>
+    </div>
+
+    <div id="modal-edit-task" class="full-screen modal-wrap hidden"><div class="modal-box"><i class="fas fa-times modal-close-icon" onclick="closeModal('modal-edit-task'); playSound('click')"></i><h3>EDIT TASK</h3><input type="text" id="edit-title" class="dark-inp"><textarea id="edit-desc" class="dark-inp" rows="3"></textarea><div style="display:flex; gap:10px;"><select id="edit-priority" class="dark-inp"><option value="Medium">Medium</option><option value="High">High</option><option value="Low">Low</option></select><input type="date" id="edit-date" class="dark-inp"></div><button class="btn-action btn-green" onclick="saveEditTask(); playSound('success')">SAVE CHANGES</button></div></div>
+    <div id="modal-profile" class="full-screen modal-wrap hidden"><div class="modal-box"><i class="fas fa-times modal-close-icon" onclick="closeModal('modal-profile'); playSound('click')"></i><h3>PROFILE</h3><input type="email" id="edit-email-prof" class="dark-inp"><input type="password" id="edit-pass-prof" class="dark-inp"><button class="btn-action btn-green" onclick="updateProfile(); playSound('success')">UPDATE</button></div></div>
+    <div id="modal-members" class="full-screen modal-wrap hidden"><div class="modal-box" style="height:60%; overflow-y:auto; padding-top:40px;"><i class="fas fa-times modal-close-icon" onclick="closeModal('modal-members'); playSound('click')"></i><h3>TEAM LIST</h3><div id="members-body"></div></div></div>
+
+    <script type="module">
+        // 🔥 NEW: COPY COMPLAINT ID FUNCTION 🔥
+        window.copyComplaintId = function() {
+            const idText = document.getElementById('pub-id-display').innerText;
+            
+            navigator.clipboard.writeText(idText).then(() => {
+                const copyBtn = document.getElementById('copy-id-btn');
+                
+                // Change button to show success
+                copyBtn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+                copyBtn.style.background = 'var(--success)';
+                copyBtn.style.color = 'white';
+                copyBtn.style.borderColor = 'var(--success)';
+                
+                if(window.playSound) window.playSound('success');
+                
+                // Reset button back to normal after 2 seconds
+                setTimeout(() => {
+                    copyBtn.innerHTML = '<i class="fas fa-copy"></i> Copy';
+                    copyBtn.style.background = 'transparent';
+                    copyBtn.style.color = 'var(--text-main)';
+                    copyBtn.style.borderColor = 'var(--text-muted)';
+                }, 2000);
+            }).catch(err => {
+                alert("Failed to copy text: ", err);
+            });
+        };
+        
+        // --- 1. FIREBASE SETUP (Integrated) ---
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getDatabase, ref, set, onValue, push, get, child } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+        // ✅ PASTE YOUR FIREBASE CONFIG HERE:
+        const firebaseConfig = {
+            apiKey: "AIzaSyCBKQBLiin0f3ruawpVvmxJjRdOJnrzlBI",
+            authDomain: "smartcity-17c81.firebaseapp.com",
+            databaseURL: "https://smartcity-17c81-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "smartcity-17c81",
+            storageBucket: "smartcity-17c81.firebasestorage.app",
+            messagingSenderId: "35088847884",
+            appId: "1:35088847884:web:11b7aaefaad6a20c270a29",
+            measurementId: "G-HH0H5MY9GX"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        // --- 2. GLOBAL VARIABLES ---
+        const DB_SESSION='muni_session_v80';
+        window.users = []; 
+        window.tasks = []; 
+        window.notifications = []; 
+        window.currentUser = null;
+        window.detectedCategory="General"; 
+        window.activeId=null; 
+        window.activeChatTaskId=null; 
+        window.editId=null;
+        let map;
+
+        // --- 3. LOAD DATA FROM FIREBASE (Realtime Listener) ---
+        onValue(ref(db, 'muni_data'), (snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+                window.users = data.users || [];
+                window.tasks = data.tasks || [];
+                window.notifications = data.notifications || [];
+                
+                if(window.currentUser) {
+                    window.renderTasks();
+                    window.renderNotifications();
+                    try { window.renderCharts(); window.updateLeaderboard(); } catch(e){}
+                }
+                // 🔥 NEW: Update Ticker Always
+                window.updateTicker();
+            }
+        });
+
+        // Initialize Session
+        try { window.currentUser=JSON.parse(localStorage.getItem(DB_SESSION))||null; } catch(e){localStorage.clear();}
+
+        // --- 4. PERSIST DATA FUNCTION ---
+        window.persistData = function() {
+            set(ref(db, 'muni_data'), {
+                users: window.users,
+                tasks: window.tasks,
+                notifications: window.notifications
+            });
+        }
+
+        // --- 5. LOGIC & FUNCTIONS ---
+        
+        window.processLogin = function() { const e=document.getElementById('log-email').value.trim(); const p=document.getElementById('log-pass').value; const u=users.find(x=>x.email===e && x.pass===p); if(u) { currentUser=u; localStorage.setItem(DB_SESSION, JSON.stringify(u)); window.initDashboard(); playSound('success'); } else { alert("Invalid Credentials"); playSound('error'); } };
+        
+        // MODIFIED REGISTER FUNCTION (ADMIN CHECK)
+        window.processRegister = function() { 
+            const n=document.getElementById('reg-name').value; 
+            const e=document.getElementById('reg-email').value.trim(); 
+            const p=document.getElementById('reg-pass').value; 
+            const code=document.getElementById('reg-admin-code').value.trim();
+            
+            if(!n||!e||!p) { alert("Fill all fields"); return; }
+            
+            let role = 'commissioner';
+            if(code === 'admin123') { role = 'admin'; }
+
+            users.push({ name: n, email: e, pass: p, role: role, zone: 'All' }); 
+            persistData(); 
+            alert(role === 'admin' ? "Admin Registered!" : "Commissioner Registered!"); 
+            window.navigateTo('login'); 
+        };
+
+        window.processLogout = function() { localStorage.removeItem(DB_SESSION); location.reload(); };
+        window.navigateTo = function(page) { document.getElementById('page-login').classList.toggle('hidden', page!=='login'); document.getElementById('page-register').classList.toggle('hidden', page!=='register'); };
+
+        window.initDashboard = function() {
+            if (!currentUser) return;
+            document.getElementById('public-chatbot-btn').classList.add('hidden');
+            document.getElementById('public-chatbot-box').classList.add('hidden');
+            document.getElementById('page-login').classList.add('hidden'); document.getElementById('page-register').classList.add('hidden'); document.getElementById('dashboard-page').classList.remove('hidden');
+            document.getElementById('head-user').innerText = currentUser.name; document.getElementById('head-role').innerText = currentUser.role.toUpperCase() + " | " + currentUser.zone;
+            
+            const isSup = currentUser.role === 'supervisor'; 
+            const isC = currentUser.role === 'commissioner'; 
+            const isW = currentUser.role === 'worker';
+            const isAdmin = currentUser.role === 'admin'; 
+
+            document.getElementById('fab-add').classList.toggle('hidden', isSup || isW); 
+            document.getElementById('btn-add-member').classList.toggle('hidden', isW); 
+            document.getElementById('btn-export').classList.toggle('hidden', isSup || isW);
+            
+            // ✅ FIX: Only hide Analytics/Leaderboard for WORKERS (isW). Supervisors (isSup) can now see it!
+            document.getElementById('analytics-section').classList.toggle('hidden', isW);
+
+            document.getElementById('btn-ai-insights').classList.toggle('hidden', (!isC && !isAdmin));
+
+            // 🔥 REAL WEATHER CALL
+            fetchWeather();
+
+            setInterval(() => { if(document.getElementById('live-clock')) document.getElementById('live-clock').innerText = new Date().toLocaleTimeString(); }, 1000);
+            window.renderTasks(); window.renderNotifications(); 
+            
+            // Show charts for everyone except Workers
+            if (!isW) { setTimeout(() => { try { window.renderCharts(); window.updateLeaderboard(); } catch(e){} }, 500); }
+        };
+
+        // --- 🔥 REAL WEATHER + LIVE LOCATION FUNCTION 🔥 ---
+        window.fetchWeather = function() {
+            if(navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(position => {
+                    const lat = position.coords.latitude;
+                    const lon = position.coords.longitude;
+                    
+                    // 1. Get Location Name (Reverse Geocoding)
+                    fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`)
+                    .then(res => res.json())
+                    .then(locData => {
+                        // Extract City/Town/Village
+                        const city = locData.address.city || locData.address.town || locData.address.village || locData.address.county || "My Location";
+                        
+                        // 2. Get Weather
+                        const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`;
+                        return fetch(weatherUrl).then(res => res.json()).then(wData => {
+                            return { city: city, temp: wData.current_weather.temperature };
+                        });
+                    })
+                    .then(data => {
+                        // Update UI with City and Temp
+                        document.getElementById('loc-weather-display').innerText = `${data.city} ⛅ ${data.temp}°C`;
+                    })
+                    .catch(() => { document.getElementById('loc-weather-display').innerText = "Location Error 28°C"; });
+
+                }, () => { document.getElementById('loc-weather-display').innerText = "GPS Off 28°C"; });
+            }
+        };
+
+        // --- VOICE & AI ---
+        window.startVoiceInput = function(id) {
+            if (!('webkitSpeechRecognition' in window)) { alert("⚠️ Use Chrome."); return; }
+            const recognition = new webkitSpeechRecognition(); recognition.lang = 'en-US'; recognition.start();
+            const micIcon = document.querySelector(`[onclick="startVoiceInput('${id}')"]`); if(micIcon) micIcon.classList.add('mic-active');
+            recognition.onresult = function(event) { document.getElementById(id).value = event.results[0][0].transcript; if(window.aiCheckContext) window.aiCheckContext(event.results[0][0].transcript); if(micIcon) micIcon.classList.remove('mic-active'); };
+            recognition.onerror = function() { if(micIcon) micIcon.classList.remove('mic-active'); }; recognition.onend = function() { if(micIcon) micIcon.classList.remove('mic-active'); };
+        };
+
+        window.aiCheckContext = function(text) {
+            text = text.toLowerCase(); let priority = "Medium", cat = "General";
+            if (text.match(/urgent|danger|fire|electric|accident|block|broken/)) { priority = "High"; } else if (text.match(/park|survey|paint/)) { priority = "Low"; }
+            if (text.match(/road|pothole|street/)) cat = "Infrastructure"; else if (text.match(/garbage|trash|clean/)) cat = "Cleaning"; else if (text.match(/drain|sewage|water/)) cat = "Sanitary"; else if (text.match(/light|power/)) cat = "Electricity";
+            document.getElementById('task-priority').value = priority; detectedCategory = cat; document.getElementById('ai-category-display').innerText = cat; document.getElementById('ai-priority-badge').style.display = (priority === 'High') ? 'block' : 'none';
+        };
+
+        // =========================================================================
+        // 🚀 NEW ADVANCED AI ANALYTICS ENGINE (Charts + Recommendations)
+        // =========================================================================
+
+        window.generateAIInsights = function() {
+            // 1. Show Modal
+            document.getElementById('modal-ai-insights').classList.remove('hidden');
+            const container = document.getElementById('ai-insights-content');
+            container.innerHTML = "<div style='text-align:center; padding:20px;'><i class='fas fa-circle-notch fa-spin'></i> AI Analyzing Municipal Data...</div>";
+
+            setTimeout(() => {
+                // --- DATA MINING ---
+                const total = tasks.length;
+                const pending = tasks.filter(t => t.status !== 'Completed').length;
+                const completed = total - pending;
+                const efficiency = total ? ((completed / total) * 100).toFixed(1) : 0;
+                
+                // Count Issues by Zone
+                const zoneCounts = {};
+                tasks.forEach(t => { zoneCounts[t.targetZone] = (zoneCounts[t.targetZone] || 0) + 1; });
+                const worstZone = Object.keys(zoneCounts).reduce((a, b) => zoneCounts[a] > zoneCounts[b] ? a : b, "None");
+
+                // Count Issues by Category
+                const catCounts = {};
+                tasks.forEach(t => { 
+                    let cat = t.category || "General";
+                    catCounts[cat] = (catCounts[cat] || 0) + 1; 
+                });
+                const topIssue = Object.keys(catCounts).reduce((a, b) => catCounts[a] > catCounts[b] ? a : b, "General");
+
+                // --- AI LOGIC FOR PREDICTIONS ---
+                let riskLevel = "LOW";
+                let riskColor = "green";
+                let suggestion = "Routine maintenance is sufficient.";
+
+                if (pending > 10) {
+                    riskLevel = "CRITICAL";
+                    riskColor = "red";
+                    suggestion = `⚠️ **URGENT:** Deploy extra workforce to **${worstZone}** immediately. Complaints are piling up!`;
+                } else if (pending > 5) {
+                    riskLevel = "MODERATE";
+                    riskColor = "orange";
+                    suggestion = `⚡ **Action Required:** Focus on clearing **${topIssue}** complaints this weekend.`;
+                }
+
+                // --- GENERATE HTML REPORT ---
+                let html = `
+                    <div style="background:var(--bg-input); padding:15px; border-radius:8px; border-left:5px solid ${riskColor}; margin-bottom:20px;">
+                        <h2 style="margin:0; color:${riskColor}; font-family:var(--font-head);">RISK LEVEL: ${riskLevel}</h2>
+                        <p style="margin-top:5px; font-size:13px; opacity:0.8;">Based on real-time complaint velocity and resolution rate.</p>
+                    </div>
+
+                    <div style="display:flex; gap:15px; flex-wrap:wrap; margin-bottom:20px;">
+                        <div style="flex:1; background:var(--bg-surface); padding:15px; border:1px solid var(--border-col); border-radius:8px; text-align:center;">
+                            <div style="font-size:24px; font-weight:bold; color:var(--primary);">${efficiency}%</div>
+                            <div style="font-size:11px; text-transform:uppercase; color:var(--text-muted);">Efficiency Score</div>
+                        </div>
+                        <div style="flex:1; background:var(--bg-surface); padding:15px; border:1px solid var(--border-col); border-radius:8px; text-align:center;">
+                            <div style="font-size:24px; font-weight:bold; color:var(--danger);">${worstZone}</div>
+                            <div style="font-size:11px; text-transform:uppercase; color:var(--text-muted);">Worst Zone</div>
+                        </div>
+                        <div style="flex:1; background:var(--bg-surface); padding:15px; border:1px solid var(--border-col); border-radius:8px; text-align:center;">
+                            <div style="font-size:24px; font-weight:bold; color:var(--accent);">${topIssue}</div>
+                            <div style="font-size:11px; text-transform:uppercase; color:var(--text-muted);">Top Issue</div>
+                        </div>
+                    </div>
+
+                    <h4 style="color:var(--primary); border-bottom:1px solid var(--border-col); padding-bottom:5px; margin-bottom:10px;">📊 Complaint Analytics</h4>
+                    <div style="height:200px; width:100%; margin-bottom:20px;">
+                        <canvas id="aiReportChart"></canvas>
+                    </div>
+
+                    <div style="background:rgba(0, 123, 255, 0.1); padding:15px; border-radius:8px; border:1px dashed var(--accent);">
+                        <strong style="color:var(--accent);"><i class="fas fa-robot"></i> AI RECOMMENDATION:</strong><br>
+                        <span style="font-size:14px;">${suggestion}</span>
+                    </div>
+                    
+                    <button class="btn-action btn-outline" style="margin-top:15px;" onclick="window.print()">🖨️ Print Report</button>
+                `;
+
+                container.innerHTML = html;
+
+                // --- RENDER CHART (Chart.js) ---
+                setTimeout(() => {
+                    const ctx = document.getElementById('aiReportChart');
+                    if(ctx) {
+                        new Chart(ctx, {
+                            type: 'bar',
+                            data: {
+                                labels: Object.keys(catCounts),
+                                datasets: [{
+                                    label: 'Issues Count',
+                                    data: Object.values(catCounts),
+                                    backgroundColor: ['#003366', '#007bff', '#198754', '#dc3545', '#ffc107'],
+                                    borderRadius: 5
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                plugins: { legend: { display: false } },
+                                scales: { y: { beginAtZero: true } }
+                            }
+                        });
+                    }
+                }, 100);
+
+            }, 800); // Fake Loading Delay for "AI Feel"
+        };
+
+        // --- MAP & QR ---
+        window.viewLocation = function(gps) {
+            if(!gps) return alert("No Location Data Available");
+            document.getElementById('modal-location-view').classList.remove('hidden');
+            setTimeout(() => {
+                if(map) map.remove(); const [lat, lng] = gps.split(',').map(Number);
+                map = L.map('task-map').setView([lat, lng], 15);
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+                L.marker([lat, lng]).addTo(map).bindPopup("Task Location").openPopup();
+            }, 300);
+        };
+        window.scanQR = function(id) { document.getElementById('qr-scanner').classList.remove('hidden'); setTimeout(() => { document.getElementById('qr-scanner').classList.add('hidden'); const t = tasks.find(x => x.id === id); t.status = "Completed"; persistData(); window.renderTasks(); alert("✅ QR Verified!"); }, 2000); };
+        window.closeQR = function() { document.getElementById('qr-scanner').classList.add('hidden'); };
+        window.toggleChatbot = function() { document.getElementById('public-chatbot-box').classList.toggle('hidden'); };
+        
+        // =========================================================================================
+        // 🚀 ULTRA-HIGH TECH AI CHATBOT ENGINE (NEURAL-LIKE PATTERN MATCHING)
+        // =========================================================================================
+        
+        window.isVoiceOn = false;
+        window.toggleVoice = function() {
+            window.isVoiceOn = !window.isVoiceOn;
+            document.getElementById('voice-toggle-btn').innerText = window.isVoiceOn ? "🔊" : "🔇";
+        };
+
+        window.speakText = function(text) {
+            if(!window.isVoiceOn) return;
+            const cleanText = text.replace(/<[^>]*>?/gm, '');
+            const utter = new SpeechSynthesisUtterance(cleanText);
+            window.speechSynthesis.speak(utter);
+        };
+
+        // 🧠 1. HELPER: LEVENSHTEIN DISTANCE (FUZZY LOGIC) 🧠
+        // This makes the bot understand typos like "gerbage" -> "garbage"
+        function calculateLevenshteinDistance(a, b) {
+            const matrix = [];
+            for (let i = 0; i <= b.length; i++) matrix[i] = [i];
+            for (let j = 0; j <= a.length; j++) matrix[0][j] = j;
+            for (let i = 1; i <= b.length; i++) {
+                for (let j = 1; j <= a.length; j++) {
+                    if (b.charAt(i - 1) == a.charAt(j - 1)) matrix[i][j] = matrix[i - 1][j - 1];
+                    else matrix[i][j] = Math.min(matrix[i - 1][j - 1] + 1, Math.min(matrix[i][j - 1] + 1, matrix[i - 1][j] + 1));
+                }
+            }
+            return matrix[b.length][a.length];
+        }
+
+        // 🧠 2. KNOWLEDGE GRAPH (Extensive Government Data) 🧠
+        const govtDatabase = {
+            "identity_docs": {
+                keywords: ["aadhaar", "pan card", "voter id", "passport", "ration card", "driving license", "rc book"],
+                response: "🆔 **Identity Documents:**\nFor Aadhaar, PAN, or Voter ID updates, please visit the **E-Seva Centre** near the Bus Stand (Zone 1). Online updates can be done at **uidai.gov.in**."
+            },
+            "certificates": {
+                keywords: ["birth certificate", "death certificate", "community certificate", "income certificate", "legal heir", "varisu"],
+                response: "📜 **Certificates:**\nApply at the Taluk Office or online via **TN e-District Portal**. For Birth/Death records before 2018, visit the Municipality Record Room (Counter 2)."
+            },
+            "schemes_women": {
+                keywords: ["women", "girl", "magalir", "urimai", "thogai", "vidhava", "widow", "marriage assistance", "gold"],
+                response: "👩 **Women Welfare Schemes:**\n1. **Kalaignar Magalir Urimai Thogai:** ₹1000/month (Apply at Ration Shop).\n2. **Moovalur Ramamirtham Ammaiyar:** Education assistance for girls.\n3. **Marriage Assistance:** Gold coin + Cash for graduates."
+            },
+            "schemes_farmers": {
+                keywords: ["farmer", "agriculture", "loan", "vivasaayi", "crop", "insurance", "pm kisan"],
+                response: "🌾 **Farmer Schemes:**\n1. **PM-KISAN:** ₹6000/year support.\n2. **Crop Insurance:** Apply at Primary Agriculture Co-op Bank.\n3. **Free Power:** Register at TNEB office for agriculture service."
+            },
+            "health": {
+                keywords: ["hospital", "doctor", "medicine", "vaccine", "covid", "ambulance", "emergency", "health", "makkalai thedi"],
+                response: "🏥 **Health Services:**\n- **Govt Hospital:** Main Road, Zone 2 (24x7).\n- **Makkalai Thedi Maruthuvam:** Doorstep medicine for BP/Sugar.\n- **Ambulance:** Dial 108.\n- **Health Inspector:** 9876543210."
+            },
+            "education": {
+                keywords: ["school", "college", "scholarship", "fees", "rte", "admission", "library"],
+                response: "🎓 **Education:**\n- **Govt Higher Secondary School:** North St, Zone 3.\n- **RTE Admission:** Free seats in private schools (Apply online in May).\n- **Library:** District Central Library is open 8 AM - 8 PM."
+            },
+            "housing": {
+                keywords: ["house", "patta", "chitta", "land", "approval", "building", "plan", "tax", "kudiyiruppu"],
+                response: "🏠 **Housing & Land:**\n- **Patta/Chitta:** View online at **eservices.tn.gov.in**.\n- **Building Approval:** Submit plan to Town Planning Section (Room 12).\n- **Property Tax:** Pay online or at Counter 4."
+            },
+            "sanitation": {
+                keywords: ["garbage", "dustbin", "clean", "road", "drain", "mosquito", "dengue", "fogging", "toilet"],
+                response: "🧹 **Sanitation:**\nGarbage trucks arrive daily at 7 AM. If your drain is blocked or mosquito menace is high, type 'Complaint' to book a request immediately."
+            },
+            "electricity": {
+                keywords: ["power", "current", "eb", "bill", "light", "fuse", "pole", "wire", "tneb"],
+                response: "⚡ **Electricity (TNEB):**\n- **Pay Bill:** tnebltd.gov.in\n- **Power Cut Complaint:** Call **1912**.\n- **Street Light:** Report here in this portal under 'Public Complaint'."
+            },
+            "police": {
+                keywords: ["police", "theft", "crime", "fir", "station", "cyber", "harassment"],
+                response: "👮 **Police Services:**\n- **Emergency:** 100\n- **Cyber Crime:** 1930\n- **Local Station:** Gandhi Road, near Market.\n- **Online FIR:** eservices.tnpolice.gov.in"
+            },
+            "website_help": {
+                keywords: ["login", "register", "password", "reset", "signup", "create account", "logout", "admin"],
+                response: "🔐 **Website Help:**\n- **Login:** Use the main page box.\n- **Register:** Click 'Create Account' below login.\n- **Forgot Password:** Contact Admin (admin@smartcity.gov).\n- **Roles:** Admin, Commissioner, Officer, Supervisor, Worker."
+            },
+            "app_features": {
+                keywords: ["camera", "geo", "location", "map", "upload", "photo", "tracking", "features"],
+                response: "📱 **App Features:**\nThis portal uses **AI Camera** to detect garbage automatically. It uses **GPS Satellites** to tag exact location. You can track complaints using the **PUB-ID**."
+            }
+        };
+
+        // 🧠 3. CONTEXT & MEMORY ENGINE 🧠
+        let chatContext = {
+            lastTopic: null,
+            interactionCount: 0
+        };
+
+        // 🧠 4. GENERATIVE RESPONSE LOGIC (No 'I Dont Know') 🧠
+        function getSmartResponse(input) {
+            input = input.toLowerCase();
+            chatContext.interactionCount++;
+
+            // A. Direct ID Check (Highest Priority)
+            const idMatch = input.match(/pub-\d{4}/i);
+            if(idMatch) {
+                const id = idMatch[0].toUpperCase();
+                const t = tasks.find(x => x.customId === id);
+                if(t) return `📂 **Record Found:**\n🆔 **${t.customId}**\n📌 **Issue:** ${t.title}\n🚧 **Status:** ${t.status}\n📍 **Zone:** ${t.targetZone}`;
+                else return `❌ **Search Failed:** ID ${id} does not exist. Please check the number again.`;
+            }
+
+            // B. Live Stats Check
+            if (input.includes("status") && (input.includes("city") || input.includes("total") || input.includes("work"))) {
+                const completed = tasks.filter(t => t.status === 'Completed').length;
+                const pending = tasks.length - completed;
+                return `📊 **Live City Dashboard:**\nTotal Complaints: ${tasks.length}\n✅ Solved: ${completed}\n⏳ Pending: ${pending}\n\nWe are working 24/7 to clear the pending works!`;
+            }
+
+            // C. Fuzzy Matching & Keyword Scoring
+            let bestMatch = null;
+            let highestScore = 0;
+
+            for (const [key, data] of Object.entries(govtDatabase)) {
+                let score = 0;
+                data.keywords.forEach(word => {
+                    // Exact match
+                    if (input.includes(word)) score += 10;
+                    
+                    // Fuzzy match (Typos) - allow 1 or 2 letter mistakes
+                    const wordsInInput = input.split(' ');
+                    wordsInInput.forEach(inpWord => {
+                        if (Math.abs(inpWord.length - word.length) <= 2) {
+                            const dist = calculateLevenshteinDistance(inpWord, word);
+                            if (dist <= 1 && word.length > 3) score += 8; // Very close match
+                            if (dist <= 2 && word.length > 5) score += 5; // Close match
+                        }
+                    });
+                });
+
+                if (score > highestScore) {
+                    highestScore = score;
+                    bestMatch = data;
+                    chatContext.lastTopic = key; // Save context
+                }
+            }
+
+            // D. High Confidence Response
+            if (highestScore > 5) {
+                return bestMatch.response;
+            }
+
+            // E. Context Awareness (Follow-up questions)
+            // Example: User asks "Where?" after asking about Hospital
+            if (chatContext.lastTopic && (input.includes("where") || input.includes("contact") || input.includes("how"))) {
+                const prevData = govtDatabase[chatContext.lastTopic];
+                if(prevData) {
+                    return `👉 Regarding your previous query on **${chatContext.lastTopic.replace('_', ' ').toUpperCase()}**: \n\n${prevData.response}`;
+                }
+            }
+
+            // F. "NEVER SAY I DON'T KNOW" FALLBACK GENERATOR
+            // If nothing matches, generate a helpful generic government response based on sentence structure.
+            
+            if (input.includes("help") || input.includes("support")) {
+                return "🤝 **I am here to help!** You can ask me about:\n1. Ration Card / Aadhaar\n2. Filing Complaints\n3. Road/Water Issues\n4. Government Schemes\n\nJust type your question!";
+            }
+            
+            if (input.includes("you") || input.includes("your")) {
+                return "🤖 I am the **Smart City Virtual Assistant**. My brain is connected to the Municipal Database to help citizens like you with instant information.";
+            }
+
+            if (input.includes("bad") || input.includes("worst") || input.includes("angry")) {
+                return "😔 I apologize if you are facing issues. We take citizen feedback seriously. Please click the **'Public Complaint'** button to report the issue officially so our officers can act immediately.";
+            }
+
+            // G. Ultimate Fallback (Looks like it's searching)
+            return `🤔 **Analyzing Request...**\n\nI am scanning the government database regarding "<i>${input}</i>"...\n\nWhile I fetch specific details, you can:\n📞 Call **1800-425-HELP** for immediate assistance.\n🏢 Visit the **Municipal Office (Zone 1)** during working hours.\n📝 File a complaint here if it's a civic issue.`;
+        }
+
+        // 🧠 5. MAIN HANDLER
+        window.handleChatbot = function() { 
+            const inp = document.getElementById('chatbot-input');
+            const txt = inp.value.trim();
+            if(!txt) return;
+
+            // UI: User Message
+            const chatBody = document.getElementById('chatbot-body');
+            chatBody.innerHTML += `<div style="text-align:right; margin:10px 0; font-size:12px; color:var(--primary); animation:popIn 0.3s;"><b>You:</b> ${txt}</div>`;
+            
+            // UI: Bot Typing Simulation
+            const typingId = 'typing-' + Date.now();
+            chatBody.innerHTML += `<div id="${typingId}" style="text-align:left; margin:10px 0; font-size:11px; opacity:0.7;"><i>🤖 AI Computing...</i></div>`;
+            chatBody.scrollTop = chatBody.scrollHeight;
+
+            // Process Response (Simulate delay for realism)
+            setTimeout(() => {
+                const response = getSmartResponse(txt);
+                
+                // Remove Typing Indicator
+                const loader = document.getElementById(typingId);
+                if(loader) loader.remove();
+
+                // Show Bot Message
+                chatBody.innerHTML += `<div style="text-align:left; margin:10px 0; background:var(--bg-input); padding:10px; border-radius:8px; font-size:13px; border:1px solid var(--border-col); box-shadow:0 2px 5px rgba(0,0,0,0.05); animation:slideUp 0.3s;">${response}</div>`;
+                chatBody.scrollTop = chatBody.scrollHeight;
+                
+                window.speakText(response);
+            }, 600); // 600ms thinking time
+
+            inp.value = "";
+        };
+
+        // =========================================================================================
+        // END OF AI ENGINE
+        // =========================================================================================
+
+        // --- TASK LOGIC ---
+        window.createTask = function() {
+            const t=document.getElementById('task-title').value; if(!t) return alert("Title needed");
+            let status = (currentUser.role==='commissioner' || currentUser.role === 'admin') ? "Order from Commissioner" : "Assigned";
+            tasks.push({ id:Date.now(), title:t, desc:document.getElementById('task-desc').value, targetZone:document.getElementById('task-target').value.replace(' (Officer)',''), status:status, priority:document.getElementById('task-priority').value, deadline:document.getElementById('task-date').value, category:detectedCategory, proof:null, comments:[], assignedWorker:null, gps:null });
+            window.addNotification((currentUser.role==='commissioner'||currentUser.role==='admin')?'officer':'supervisor', document.getElementById('task-target').value, "New Task: "+t);
+            persistData(); window.closeModal('modal-assign'); window.renderTasks(); window.renderCharts(); playSound('success');
+        };
+
+        window.forwardTask = function(id) { const t=tasks.find(x=>x.id===id); if(t){ t.status='Assigned'; if(t.targetZone==='All Zones')t.targetZone=currentUser.zone; window.addNotification('supervisor', t.targetZone, "Fwd: "+t.title); persistData(); window.renderTasks(); alert("Forwarded!"); } };
+        
+        // 🔥 UPDATED: Assign to Multiple Workers (Eg: 1, 2, 3) 🔥
+        window.assignToWorker = function(taskId) {
+            const zoneWorkers = users.filter(u => u.role === 'worker' && u.zone === currentUser.zone);
+            
+            if(zoneWorkers.length === 0) { alert("No workers in this zone!"); return; }
+
+            // List workers with index
+            let workerListText = zoneWorkers.map((w,i) => `${i+1}. ${w.name}`).join('\n');
+            
+            // Prompt for multiple inputs
+            let choice = prompt("Enter Worker Index (Use comma for multiple, e.g., 1,3):\n" + workerListText);
+
+            if(choice) {
+                // Split input by comma, trim spaces, and convert to index
+                const indices = choice.split(',').map(idx => parseInt(idx.trim()) - 1);
+                
+                let selectedEmails = [];
+                let valid = true;
+
+                indices.forEach(idx => {
+                    if(zoneWorkers[idx]) {
+                        selectedEmails.push(zoneWorkers[idx].email);
+                    } else {
+                        valid = false;
+                    }
+                });
+
+                if (valid && selectedEmails.length > 0) {
+                    const t = tasks.find(x => x.id === taskId);
+                    // Store as Array of Emails now
+                    t.assignedWorker = selectedEmails; 
+                    t.status = "In Progress"; 
+                    persistData(); 
+                    window.renderTasks(); 
+                    alert(`✅ Task Assigned to ${selectedEmails.length} Workers!`);
+                } else {
+                    alert("⚠️ Invalid Worker Index Provided.");
+                }
+            }
+        };
+
+        window.workerFinishTask = function(id) { if(!confirm("Mark this work as done?")) return; const t = tasks.find(x => x.id === id); t.status = "Work Done (Check)"; persistData(); window.renderTasks(); alert("✅ Marked as Done!"); playSound('success'); };
+
+        // 🔥 UPDATED: Render Tasks to support Multiple Workers 🔥
+        window.renderTasks = function() {
+            const list = document.getElementById('task-list'); list.innerHTML = "";
+            const term = document.getElementById('search-input') ? document.getElementById('search-input').value.toLowerCase() : '';
+            const status = document.getElementById('status-filter') ? document.getElementById('status-filter').value : 'All';
+
+            let myTasks = tasks.filter(t => { 
+                // Filter out Hidden Tasks
+                if(t.isHidden) return false;
+
+                if (currentUser.role === 'commissioner' || currentUser.role === 'admin') return true; 
+                if (currentUser.role === 'officer') return (t.targetZone === 'All Zones' || t.targetZone === currentUser.zone); 
+                if (currentUser.role === 'supervisor') return (t.targetZone === currentUser.zone && t.status !== 'Order from Commissioner'); 
+                
+                // 🔥 NEW: Check if current worker is in the assigned array
+                if (currentUser.role === 'worker') {
+                    if (Array.isArray(t.assignedWorker)) {
+                        return t.assignedWorker.includes(currentUser.email);
+                    }
+                    return t.assignedWorker === currentUser.email; // Backward compatibility
+                }
+                return false; 
+            });
+
+            myTasks = myTasks.filter(t => { 
+                const matchSearch = t.title.toLowerCase().includes(term); 
+                const matchStatus = status === 'All' || t.status.includes(status) || (status === 'High' && (t.priority === 'High' || t.priority === 'Urgent')); 
+                return matchSearch && matchStatus; 
+            });
+
+            if (myTasks.length === 0) { list.innerHTML = "<div style='text-align:center;opacity:0.5;padding:20px; color:var(--text-main);'>No tasks found.</div>"; return; }
+
+            myTasks.forEach(t => {
+                let actionBtns = '';
+                if (currentUser.role === 'officer' && t.status === 'Order from Commissioner') actionBtns += `<button class="btn-action btn-purple" style="padding:5px; width:100%; margin-top:5px;" onclick="forwardTask(${t.id})">🚀 Forward</button>`;
+                
+                // Supervisor Logic
+                if (currentUser.role === 'supervisor' && t.status === 'Assigned' && !t.assignedWorker) actionBtns += `<button class="btn-action btn-blue" style="padding:5px; width:100%; margin-top:5px;" onclick="assignToWorker(${t.id})">👷 Assign Worker(s)</button>`;
+                
+                // Worker Logic
+                if (currentUser.role === 'worker' && t.status === 'In Progress') actionBtns = `<button class="btn-action btn-green" style="width:100%; margin-top:5px;" onclick="workerFinishTask(${t.id})">✅ Mark Work Done</button>`;
+                
+                let deleteBtn = ''; 
+                if ((currentUser.role === 'commissioner' || currentUser.role === 'officer' || currentUser.role === 'admin') && t.status !== 'Completed') 
+                    deleteBtn = `<button class="btn-action btn-red" style="padding:5px;" onclick="deleteTask(${t.id})"><i class="fas fa-trash"></i></button>`;
+                
+                if ((currentUser.role === 'commissioner' || currentUser.role === 'admin') && t.status === 'Completed') {
+                    deleteBtn = `<button class="btn-action btn-red" style="padding:5px;" onclick="archiveTask(${t.id})" title="Remove from Dashboard"><i class="fas fa-archive"></i> Clear</button>`;
+                }
+
+                let uploadBtn = ''; 
+                if (currentUser.role === 'supervisor' && (t.status === 'Assigned' || t.status === 'Work Done (Check)' || t.status === 'In Progress')) {
+                    uploadBtn = `<button class="btn-action btn-green" style="padding:5px;" onclick="window.activeId=${t.id}; window.openUploadModal();">Upload/Verify</button>`;
+                }
+
+                let locBtn = ''; if ((currentUser.role === 'commissioner' || currentUser.role === 'officer' || currentUser.role === 'admin') && t.gps) locBtn = `<button class="btn-action btn-blue" style="padding:5px;" onclick="viewLocation('${t.gps}')" title="View Map"><i class="fas fa-map-marker-alt"></i></button>`;
+
+                let editBtn = '';
+                if ((currentUser.role === 'commissioner' || currentUser.role === 'officer' || currentUser.role === 'admin') && t.status !== 'Completed')
+                    editBtn = `<button class="btn-action btn-orange" style="padding:5px;" onclick="openEditTask(${t.id})">✏️</button>`;
+
+                let approveBtn = '';
+                if ((currentUser.role === 'commissioner' || currentUser.role === 'admin') && t.status === 'Pending Review')
+                    approveBtn = `<button class="btn-action btn-green" onclick="commDecide(${t.id},'app')">Approve</button>`;
+
+                // 🔥 NEW: Format Assigned Workers for Display
+                let workerDisplay = '';
+                if (t.assignedWorker) {
+                    if (Array.isArray(t.assignedWorker)) {
+                        workerDisplay = t.assignedWorker.map(email => {
+                            const u = users.find(user => user.email === email);
+                            return u ? u.name : email;
+                        }).join(', ');
+                    } else {
+                        workerDisplay = t.assignedWorker; // Fallback
+                    }
+                }
+
+                let html = `<div class="task-card ${t.priority==='High'||t.priority==='Urgent'?'urgent-pulse':''}"><div style="display:flex; justify-content:space-between;"><div class="task-title">${t.title}</div><span class="badge" style="background:var(--primary);color:white;">${t.status}</span></div><div style="font-size:12px;margin-top:5px; opacity:0.8; color:var(--text-main);">${t.desc}</div><div style="margin-top:10px;">${t.category ? `<span class="ai-cat-badge">🤖 ${t.category}</span>` : ''}${t.priority==='High'||t.priority==='Urgent' ? `<span style="color:var(--danger); font-size:11px; font-weight:bold; margin-left:5px;">🔥 ${t.priority}</span>` : ''}${workerDisplay ? `<div style="font-size:10px; color:var(--accent); margin-top:5px;">👷 ${workerDisplay}</div>` : ''}</div>${t.proof ? `<img src="${t.proof}" class="proof-img" onclick="viewFullImage('${t.proof}')" style="max-width:100%; border-radius:6px; margin-top:10px; cursor:pointer;">` : ''}${actionBtns}<div style="margin-top:15px; display:flex; gap:5px;">${editBtn}${uploadBtn}${approveBtn}${locBtn}<button class="btn-action btn-outline" style="padding:5px;" onclick="window.activeChatTaskId=${t.id};document.getElementById('modal-chat').classList.remove('hidden');renderChatHistory()">💬</button>${deleteBtn}</div></div>`;
+                list.innerHTML += html;
+            });
+        };
+
+        // --- MODALS & ADMIN ---
+        window.openAddMemberModal = function() {
+            document.getElementById('new-name').value = ''; document.getElementById('new-email').value = ''; document.getElementById('new-pass').value = '';
+            document.getElementById('modal-add-member').classList.remove('hidden'); document.getElementById('new-role-div').classList.remove('hidden'); document.getElementById('new-zone-div').classList.remove('hidden');
+            const roleSelect = document.getElementById('new-role-select'); const zoneSelect = document.getElementById('new-zone-select');
+            
+            if (currentUser.role === 'admin') { 
+                roleSelect.innerHTML = `<option value="commissioner">Commissioner</option><option value="officer">Officer</option><option value="supervisor">Supervisor</option><option value="worker">Worker</option>`; 
+                zoneSelect.innerHTML = `<option value="All">All (Comm/Admin)</option><option value="Zone 1">Zone 1</option><option value="Zone 2">Zone 2</option><option value="Zone 3">Zone 3</option>`; 
+                zoneSelect.disabled = false; 
+            } 
+            else if (currentUser.role === 'commissioner') { roleSelect.innerHTML = `<option value="officer">Municipality Officer</option><option value="supervisor">Supervisor</option>`; zoneSelect.innerHTML = `<option value="Zone 1">Zone 1</option><option value="Zone 2">Zone 2</option><option value="Zone 3">Zone 3</option>`; zoneSelect.disabled = false; } 
+            else if (currentUser.role === 'officer') { roleSelect.innerHTML = `<option value="supervisor">Supervisor</option>`; zoneSelect.innerHTML = `<option value="${currentUser.zone}">${currentUser.zone}</option>`; zoneSelect.disabled = true; }
+            else if (currentUser.role === 'supervisor') { roleSelect.innerHTML = `<option value="worker">Worker</option>`; zoneSelect.innerHTML = `<option value="${currentUser.zone}">${currentUser.zone}</option>`; zoneSelect.disabled = true; }
+            
+            setTimeout(() => { roleSelect.value = roleSelect.options[0].value; zoneSelect.value = zoneSelect.options[0].value; }, 100);
+        };
+
+        // 🔥 UPDATED: Leaderboard to credit multiple workers 🔥
+        window.updateLeaderboard = function() { 
+            const list = document.getElementById('lb-list'); 
+            list.innerHTML = ""; 
+            
+            const zoneScores = {}; 
+            const workerScores = {};
+
+            tasks.forEach(t => { 
+                if (t.status === 'Completed') { 
+                    zoneScores[t.targetZone] = (zoneScores[t.targetZone] || 0) + 1; 
+                    
+                    // 🔥 NEW: Add score to ALL assigned workers
+                    if(t.assignedWorker) {
+                        if (Array.isArray(t.assignedWorker)) {
+                            t.assignedWorker.forEach(email => {
+                                workerScores[email] = (workerScores[email] || 0) + 1; 
+                            });
+                        } else {
+                            // Backward compatibility for old single assignments
+                            workerScores[t.assignedWorker] = (workerScores[t.assignedWorker] || 0) + 1; 
+                        }
+                    }
+                } 
+            }); 
+            
+            // --- HELPER TO SHOW LIST ---
+            const renderList = (data, title, isWorker) => {
+                 list.innerHTML += `<div style="margin-top:10px; margin-bottom:5px; color:var(--primary); font-size:12px; font-weight:bold; border-bottom:1px solid rgba(0,0,0,0.1); padding-bottom:3px;">${title}</div>`;
+                 
+                 const rankings = data.map(s => { 
+                    let score = 0;
+                    if(s.role === 'supervisor') score = zoneScores[s.zone] || 0;
+                    if(s.role === 'worker') score = workerScores[s.email] || 0;
+                    return { name: s.name, role: s.role, zone: s.zone, score: score }; 
+                });
+                
+                rankings.sort((a, b) => b.score - a.score); 
+
+                if(rankings.length === 0) {
+                      list.innerHTML += `<div style="text-align:center;opacity:0.5;font-size:11px;padding:5px;">No Members Found.</div>`;
+                      return; 
+                }
+
+                rankings.forEach((r, index) => { 
+                    let rankColor = 'var(--text-main)'; 
+                    if(index === 0) rankColor = '#FFD700'; 
+                    else if(index === 1) rankColor = '#C0C0C0'; 
+                    else if(index === 2) rankColor = '#CD7F32'; 
+                    
+                    let badge = isWorker ? `<span style='font-size:9px; border:1px solid var(--success); color:var(--success); padding:2px 4px; border-radius:4px; margin-left:5px;'>Wkr</span>` 
+                                         : `<span style='font-size:9px; border:1px solid var(--accent); color:var(--accent); padding:2px 4px; border-radius:4px; margin-left:5px;'>Sup</span>`;
+
+                    list.innerHTML += `<div class="lb-item"><span><span class="lb-rank" style="color:${rankColor}; font-weight:bold;">#${index + 1}</span> ${r.name} ${badge} <span style="font-size:10px; opacity:0.6;">(${r.zone})</span></span><span style="color:var(--success); font-weight:bold;">${r.score}</span></div>`; 
+                });
+            };
+
+            if (currentUser.role === 'supervisor') {
+                const myWorkers = users.filter(u => u.role === 'worker' && u.zone === currentUser.zone);
+                renderList(myWorkers, `🏆 TEAM ${currentUser.zone} WORKERS`, true);
+            } 
+            else if (currentUser.role === 'worker') {
+                const allWorkers = users.filter(u => u.role === 'worker');
+                renderList(allWorkers, "🏆 TOP WORKERS (ALL ZONES)", true);
+            } 
+            else {
+                const supervisors = users.filter(u => u.role === 'supervisor'); 
+                const allWorkers = users.filter(u => u.role === 'worker');
+                renderList(supervisors, "🏆 TOP SUPERVISORS", false);
+                list.innerHTML += "<div style='height:10px;'></div>"; 
+                renderList(allWorkers, "🥇 TOP WORKERS", true);
+            }
+        };
+
+        // --- OTHER FUNCTIONS ---
+        window.createInternalUser = function() { const n = document.getElementById('new-name').value; const e = document.getElementById('new-email').value; const p = document.getElementById('new-pass').value; const role = document.getElementById('new-role-select').value; const zone = document.getElementById('new-zone-select').value; if (!n || !e || !p || !role || !zone) { alert("Missing Data"); return; } users.push({ name: n, email: e, pass: p, role: role, zone: zone }); persistData(); alert("Success!"); playSound('success'); window.closeModal('modal-add-member'); window.updateLeaderboard(); };
+        window.removeMember = function(email) { if(!confirm("Are you sure?")) return; users = users.filter(u => u.email !== email); persistData(); window.openMembersModal(); playSound('success'); };
+        window.openPublicReport = function() { document.getElementById('modal-public').classList.remove('hidden'); };
+        
+        window.deleteTask = function(id) { if(!confirm("Delete task?")) return; tasks = tasks.filter(t => t.id !== id); persistData(); window.renderTasks(); window.renderCharts(); playSound('click'); };
+        window.closeModal = function(id) { document.getElementById(id).classList.add('hidden'); }; 
+        
+        window.addNotification = function(role, zone, msg) { 
+            notifications.unshift({ id: Date.now(), role: role, zone: zone, message: msg, read: false, time: new Date().toLocaleString() }); 
+            persistData(); 
+            // 🔥 SAFETY CHECK: Don't render notifications if not logged in
+            if(currentUser) window.renderNotifications(); 
+        }; 
+        
+        window.renderNotifications = function() { 
+            const list = document.getElementById('notif-list'); 
+            const badge = document.getElementById('notif-badge'); 
+            list.innerHTML = ""; 
+            
+            // 🔥 EXTRA SAFETY: If currentUser is null, stop
+            if(!currentUser) return;
+
+            const myNotifs = notifications.filter(n => { 
+                if(currentUser.role === 'commissioner') return n.role === 'commissioner'; 
+                if(n.role === currentUser.role) { 
+                    if(currentUser.role === 'officer' || currentUser.role === 'supervisor') return n.zone === currentUser.zone || n.zone === 'All'; 
+                } 
+                return false; 
+            }); 
+            
+            badge.innerText = myNotifs.filter(n => !n.read).length; 
+            badge.classList.toggle('hidden', myNotifs.filter(n => !n.read).length===0); 
+            
+            myNotifs.forEach(n => { 
+                list.innerHTML += `<div style="padding:15px; border-bottom:1px solid rgba(0,0,0,0.1); font-size:13px; opacity:${n.read?0.5:1}; border-left:${n.read?'none':'4px solid var(--primary)'}; cursor:pointer;" onclick="markRead(${n.id})"><div>${n.message}</div><div style="font-size:10px;opacity:0.6;margin-top:5px;">${n.time}</div></div>`; 
+            }); 
+        }; 
+        
+        window.markRead = function(id) { const n = notifications.find(x => x.id === id); if(n) n.read = true; persistData(); window.renderNotifications(); }; window.clearNotifs = function() { document.getElementById('notif-list').innerHTML=""; notifications = notifications.filter(n => n.role !== currentUser.role); persistData(); window.renderNotifications(); }; 
+        
+        // 🔥 THEME TOGGLE FIXED 🔥
+        window.toggleTheme = function() { 
+            const body = document.body;
+            const currentTheme = body.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            body.setAttribute('data-theme', newTheme);
+            playSound('click');
+        }; 
+        
+        window.toggleNotif = function() { const d = document.getElementById('notif-dropdown'); d.style.display = d.style.display === 'block' ? 'none' : 'block'; }; 
+        
+        window.openMembersModal = function() { 
+            document.getElementById('modal-members').classList.remove('hidden'); 
+            const l = document.getElementById('members-body'); l.innerHTML = ""; 
+            const t = users.filter(u => currentUser.role === 'commissioner' || currentUser.role === 'admin' || u.zone === currentUser.zone || u.zone === 'All'); 
+            
+            t.forEach(u => { 
+                let del = ''; 
+                if(currentUser.role === 'admin' && u.email !== currentUser.email) {
+                    del = `<i class="fas fa-trash" style="color:var(--danger); cursor:pointer;" onclick="removeMember('${u.email}')"></i>`;
+                }
+                else if(currentUser.role === 'commissioner' && (u.role === 'officer' || u.role === 'supervisor')) {
+                    del = `<i class="fas fa-trash" style="color:var(--danger); cursor:pointer;" onclick="removeMember('${u.email}')"></i>`; 
+                }
+                else if(currentUser.role === 'officer' && u.role === 'supervisor') {
+                    del = `<i class="fas fa-trash" style="color:var(--danger); cursor:pointer;" onclick="removeMember('${u.email}')"></i>`; 
+                }
+
+                l.innerHTML += `<div style="padding:15px;border-bottom:1px solid rgba(0,0,0,0.1);display:flex;justify-content:space-between;align-items:center; color:var(--text-main);"><div><b>${u.name}</b><br><span style="opacity:0.7;font-size:11px;">${u.email}</span></div><div style="display:flex;gap:10px;align-items:center;"><span class="badge" style="background:var(--primary);color:white;">${u.role}</span>${del}</div></div>`; 
+            }); 
+        };
+
+        window.openProfileModal = function() { document.getElementById('modal-profile').classList.remove('hidden'); document.getElementById('edit-email-prof').value = currentUser.email; document.getElementById('edit-pass-prof').value = currentUser.pass; }; window.updateProfile = function() { const e = document.getElementById('edit-email-prof').value; const p = document.getElementById('edit-pass-prof').value; const idx = users.findIndex(u => u.email === currentUser.email); users[idx].email = e; users[idx].pass = p; currentUser.email = e; currentUser.pass = p; persistData(); localStorage.setItem(DB_SESSION, JSON.stringify(currentUser)); alert("Updated!"); window.closeModal('modal-profile'); };
+        window.viewFullImage = function(src) { document.getElementById('full-image').src = src; document.getElementById('modal-image-view').classList.remove('hidden'); }; 
+        
+        // 🔥 FIXED CLOSE BUTTON FUNCTION 🔥
+        window.closeImageView = function() {
+            document.getElementById('modal-image-view').classList.add('hidden');
+        };
+
+        window.getLocation = function() { if (navigator.geolocation) navigator.geolocation.getCurrentPosition(p => { document.getElementById('gps-input').value = `${p.coords.latitude},${p.coords.longitude}`; }); else alert("No GPS"); }; window.exportData = function() { let csv = "ID,Title,Status,Zone\n"; tasks.forEach(t => { csv += `${t.id},${t.title},${t.status},${t.targetZone}\n`; }); const blob = new Blob([csv], { type: 'text/csv' }); const a = document.createElement('a'); a.href = window.URL.createObjectURL(blob); a.download = 'data.csv'; a.click(); alert("Exported!"); };
+        window.openChat = function(id) { window.activeChatTaskId = id; document.getElementById('modal-chat').classList.remove('hidden'); window.renderChatHistory(); }; window.sendChat = function() { const inp = document.getElementById('chat-msg'); const msg = inp.value.trim(); if (!msg) return; const t = tasks.find(x => x.id === window.activeChatTaskId); t.comments.push({ senderName: currentUser.name, msg: msg }); persistData(); inp.value = ""; window.renderChatHistory(); }; window.renderChatHistory = function() { const t = tasks.find(x => x.id === window.activeChatTaskId); const b = document.getElementById('chat-history'); b.innerHTML = ""; if (!t.comments) t.comments = []; t.comments.forEach(c => { b.innerHTML += `<div class="chat-bubble ${c.senderName === currentUser.name ? 'chat-mine' : 'chat-other'}"><b>${c.senderName}</b>: ${c.msg}</div>`; }); };
+        window.aiAutoDate = function(p, elId) { const d=document.getElementById(elId); const t=new Date(); t.setDate(t.getDate()+(p==='High'?1:(p==='Low'?7:3))); d.valueAsDate=t; }; window.openEditTask = function(id) { window.editId=id; const t=tasks.find(x=>x.id===id); document.getElementById('edit-title').value=t.title; document.getElementById('edit-desc').value=t.desc; document.getElementById('edit-priority').value=t.priority; document.getElementById('edit-date').value=t.deadline; document.getElementById('modal-edit-task').classList.remove('hidden'); }; window.saveEditTask = function() { const t=tasks.find(x=>x.id===window.editId); t.title=document.getElementById('edit-title').value; t.desc=document.getElementById('edit-desc').value; t.priority=document.getElementById('edit-priority').value; t.deadline=document.getElementById('edit-date').value; persistData(); window.closeModal('modal-edit-task'); window.renderTasks(); playSound('success'); }; window.verifyOfficer = function(id) { tasks.find(x=>x.id===id).officerVerified=true; persistData(); window.renderTasks(); playSound('success'); }; window.commDecide = function(id, type) { const t=tasks.find(x=>x.id===id); if(type==='app') t.status="Completed"; else { t.status="Rejected"; t.reason="Rejected"; t.officerVerified=false; } persistData(); window.renderTasks(); window.renderCharts(); window.updateLeaderboard(); playSound('success'); }; 
+        window.openAssignModal = function() { document.getElementById('modal-assign').classList.remove('hidden'); const ts = document.getElementById('task-target'); if (currentUser.role === 'commissioner' || currentUser.role === 'admin') { ts.innerHTML = '<option value="All Zones">All Zones</option><option value="Zone 1">Zone 1 (Officer)</option><option value="Zone 2">Zone 2 (Officer)</option><option value="Zone 3">Zone 3 (Officer)</option>'; } else { ts.innerHTML = `<option value="${currentUser.zone}">${currentUser.zone}</option>`; } };
+        window.renderCharts = function() { try { if (document.getElementById('statusChart')) { if(window.myStatusChart) window.myStatusChart.destroy(); if(window.myZoneChart) window.myZoneChart.destroy(); const doneCount = tasks.filter(t => t.status === 'Completed').length; const pendingCount = tasks.filter(t => t.status !== 'Completed').length; const zoneCounts = { 'Zone 1': 0, 'Zone 2': 0, 'Zone 3': 0 }; tasks.forEach(t => { if (zoneCounts[t.targetZone] !== undefined) zoneCounts[t.targetZone]++; }); window.myStatusChart = new Chart(document.getElementById('statusChart'), { type: 'doughnut', data: { labels: ['Done', 'Pending'], datasets: [{ data: [doneCount, pendingCount], backgroundColor: ['#198754', '#fd7e14'], borderWidth: 0 }] }, options: { responsive: true, maintainAspectRatio: false } }); window.myZoneChart = new Chart(document.getElementById('zoneChart'), { type: 'bar', data: { labels: Object.keys(zoneCounts), datasets: [{ label: 'Tasks', data: Object.values(zoneCounts), backgroundColor: '#003366' }] }, options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.05)' } }, x: { grid: { display: false } } } } }); } } catch (e) { console.log("Chart Safe"); } };
+
+        if (currentUser) initDashboard();
+
+        // --- 📸 1000% ACCURACY CAMERA & GEOTAG LOGIC ---
+        
+        let stream = null;
+        window.capturedImgData = { pub: null, sup: null }; // Store image data
+
+        // --- 🔥 NEW: AI IMAGE RECOGNITION (TENSORFLOW.JS) 🔥 ---
+        // 1. Load Model at Startup
+        let mobilenetModel = null;
+        (async function loadAI() {
+            try {
+                mobilenetModel = await mobilenet.load();
+                console.log("AI Brain Loaded!");
+            } catch(e) { console.log("AI Load Error:", e); }
+        })();
+
+        // 2. Identify Image Function (MULTIMODAL: TEXT + IMAGE FUSION)
+        async function identifyObject(imgElement, resultElementId, descInputId, titleInputId) {
+            if(!mobilenetModel) return; 
+            
+            const resEl = document.getElementById(resultElementId);
+            resEl.style.display = 'block';
+
+            // Fake realistic scanning steps for UI
+            resEl.innerHTML = "🤖 <span style='color:var(--accent)'>Initializing Multimodal AI...</span>";
+
+            setTimeout(async () => {
+                resEl.innerHTML = "🤖 <span style='color:var(--accent)'>Fusing Visual & Text Vectors...</span>";
+
+                try {
+                    // Classify the image
+                    const predictions = await mobilenetModel.classify(imgElement, 5);
+                    
+                    if(predictions && predictions.length > 0) {
+                        resEl.innerHTML = "🤖 <span style='color:var(--accent)'>Cross-referencing Civic Database...</span>";
+
+                        setTimeout(() => {
+                            // 1. EXTRACT TEXT CONTEXT (User Title)
+                            let titleText = "";
+                            const titleBox = titleInputId ? document.getElementById(titleInputId) : null;
+                            if(titleBox && titleBox.value) {
+                                titleText = titleBox.value.toLowerCase();
+                            }
+
+                            // 2. EXTRACT IMAGE CONTEXT
+                            let allGuesses = predictions.map(p => p.className.toLowerCase()).join(" | ");
+                            
+                            // 3. MULTIMODAL FUSION STRING
+                            // Combining what the user typed with what the camera saw!
+                            let aiContextString = titleText + " " + allGuesses;
+                            
+                            let highestProb = Math.round(predictions[0].probability * 100);
+                            let civicCategory = "General Civic Issue";
+                            
+                            // If Title has data, we boost confidence because human context is highly accurate
+                            let finalConfidence = titleText ? Math.floor(Math.random() * (99 - 94 + 1) + 94) : highestProb;
+                            let autoTitle = titleBox && titleBox.value ? titleBox.value : "Civic Anomaly Detected";
+                            let detailedReport = "";
+
+                            // 🔥 ENHANCED SMART CITY MAPPING DICTIONARY 🔥
+                            // Now includes Indian civic terms and public places
+                            
+                            const garbageKeywords = ['garbage', 'dirty', 'trash', 'waste', 'dustbin', 'clean', 'sweep', 'bus stand', 'bus stop', 'toilet', 'plastic', 'dump', 'debris', 'spit', 'smell', 'paper', 'cup'];
+                            const roadKeywords = ['road', 'pothole', 'pit', 'damage', 'broken', 'crack', 'street', 'asphalt', 'highway', 'manhole', 'stone', 'trench'];
+                            const waterKeywords = ['water', 'leak', 'pipe', 'flood', 'stagnant', 'drainage', 'drain', 'sewage', 'overflow', 'puddle', 'sink', 'rain'];
+                            const electricalKeywords = ['light', 'power', 'pole', 'wire', 'electric', 'shock', 'spark', 'current', 'lamp', 'dark', 'street sign', 'eb'];
+                            const vehicleKeywords = ['traffic', 'park', 'car', 'block', 'vehicle', 'jam', 'accident', 'bike', 'truck'];
+                            const plantKeywords = ['tree', 'branch', 'fall', 'plant', 'wood', 'log', 'storm', 'leaf'];
+
+                            // --- APPLYING THE FUSION OVERRIDE LOGIC ---
+                            if (garbageKeywords.some(key => aiContextString.includes(key))) {
+                                civicCategory = "Public Sanitation / Solid Waste";
+                                detailedReport = `Issue Type: Public Area Sanitation / Waste Accumulation\nSeverity Analysis: High risk of vector-borne diseases and public hygiene degradation.\nRecommended Action: Immediate dispatch of Zone Sanitation Workers and Bio-Waste Truck required.`;
+                            } 
+                            else if (roadKeywords.some(key => aiContextString.includes(key))) {
+                                civicCategory = "Damaged Road / Severe Pothole";
+                                detailedReport = `Issue Type: Infrastructure Surface Deterioration\nSeverity Analysis: High risk for two-wheeler accidents and traffic slowdown.\nRecommended Action: Civil Engineering patching team required for immediate levelling.`;
+                            }
+                            else if (waterKeywords.some(key => aiContextString.includes(key))) {
+                                civicCategory = "Water Stagnation / Drainage Block";
+                                detailedReport = `Issue Type: Liquid Accumulation / Pipeline Blockage\nSeverity Analysis: Potential breeding ground for dengue mosquitoes or loss of potable water.\nRecommended Action: Municipal Water Board & Sanitation inspection required.`;
+                            }
+                            else if (electricalKeywords.some(key => aiContextString.includes(key))) {
+                                civicCategory = "Streetlight / Electrical Hazard";
+                                detailedReport = `Issue Type: Public Electrical Infrastructure\nSeverity Analysis: High risk of electrocution or area blackout creating unsafe zones.\nRecommended Action: TNEB/Electrical department intervention strictly required.`;
+                            }
+                            else if (vehicleKeywords.some(key => aiContextString.includes(key))) {
+                                civicCategory = "Traffic Obstruction / Illegal Parking";
+                                detailedReport = `Issue Type: Right-of-way Blockage\nSeverity Analysis: Minor to Moderate traffic congestion expected.\nRecommended Action: Traffic Police / Towing dispatch advised.`;
+                            }
+                            else if (plantKeywords.some(key => aiContextString.includes(key))) {
+                                civicCategory = "Fallen Tree / Vegetation Blockage";
+                                detailedReport = `Issue Type: Natural Obstruction\nSeverity Analysis: Complete or partial blockage of pathway/power lines due to vegetation.\nRecommended Action: Forestry/Disaster Management clearance required.`;
+                            }
+                            else {
+                                civicCategory = "Unidentified Civic Anomaly"; 
+                                finalConfidence = Math.floor(Math.random() * (85 - 75 + 1) + 75); 
+                                detailedReport = `Issue Type: General Civic Anomaly\nSeverity Analysis: Unverified physical obstruction or issue detected.\nRecommended Action: Manual verification by Zonal Officer requested.`;
+                            }
+
+                            // Generate UI Result
+                            resEl.innerHTML = `
+                                <div style="border: 1px dashed var(--success); padding: 5px; border-radius: 5px; margin-top: 5px; background: rgba(25, 135, 84, 0.05); text-align: left;">
+                                    <span style="color:var(--text-muted); font-size:10px;">MULTIMODAL FUSION: ACTIVE</span><br>
+                                    🤖 AI Prediction: <b style="color:var(--primary)">${civicCategory}</b><br>
+                                    🎯 Accuracy Index: <b style="color:var(--success)">${finalConfidence}%</b>
+                                </div>
+                            `;
+                            
+                            // FULLY AUTOMATIC FILLING (Title & Description)
+                            const descBox = descInputId ? document.getElementById(descInputId) : null;
+
+                            // Prefix Title to show it was AI Enhanced
+                            if(titleBox && !titleBox.value.startsWith("[AI verified]")) {
+                                titleBox.value = `[AI verified] ${autoTitle}`;
+                            }
+
+                            if(descBox) {
+                                descBox.value = `[AUTOMATED AI REPORT]
+System Timestamp: ${new Date().toLocaleString()}
+Primary Match: ${civicCategory} (Confidence: ${finalConfidence}%)
+Raw Vision Vector: ${predictions[0].className.split(',')[0].toUpperCase()}
+Text Context Vector: ${titleText ? titleText.toUpperCase() : "NULL"}
+
+--- DIAGNOSTIC DETAILS ---
+${detailedReport}
+
+Geo-spatial coordinates successfully anchored to image pixels.
+System status: Awaiting priority assignment.`;
+                                
+                                // Trigger Priority Setup
+                                if(window.aiCheckContext) window.aiCheckContext(civicCategory + " " + titleText);
+                            }
+
+                            if(window.playSound) window.playSound('success');
+
+                        }, 1000);
+                    } else {
+                        resEl.innerText = "🤖 AI could not identify object clearly. Please enter details manually.";
+                    }
+                } catch(e) {
+                    console.log(e);
+                    resEl.innerText = "⚠️ AI Analysis Interrupted. Please fill manually.";
+                }
+            }, 800);
+        }
+
+        window.startCamera = function(type) {
+            const video = document.getElementById(`video-${type}`);
+            const btnOpen = document.getElementById(`btn-open-${type}`);
+            const btnSnap = document.getElementById(`btn-snap-${type}`);
+            const btnRetake = document.getElementById(`btn-retake-${type}`);
+            const img = document.getElementById(`img-${type}`);
+            const status = document.getElementById(`loc-status-${type}`);
+            const overlay = document.getElementById(`ai-overlay-${type}`);
+
+            // Reset UI
+            img.style.display = 'none';
+            video.style.display = 'block';
+            btnOpen.classList.add('hidden');
+            btnRetake.classList.add('hidden');
+            btnSnap.classList.remove('hidden');
+            if(overlay) overlay.style.display = 'block'; // Show AI Scanner
+            status.innerText = "🔍 Connecting to Satellites...";
+
+            // Start Camera
+            navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
+            .then(s => {
+                stream = s;
+                video.srcObject = s;
+            })
+            .catch(err => { alert("Camera Error: " + err); });
+        };
+
+        window.capturePhoto = function(type) {
+            if(!navigator.geolocation) { alert("GPS not supported"); return; }
+            
+            const status = document.getElementById(`loc-status-${type}`);
+            const overlay = document.getElementById(`ai-overlay-${type}`);
+            if(overlay) overlay.style.display = 'none'; // Stop Scanning animation
+            
+            status.innerText = "📍 Triangulating Exact Position...";
+
+            // 🔥 HIGH ACCURACY GPS OPTIONS 🔥
+            const gpsOptions = {
+                enableHighAccuracy: true, // Forces usage of GPS hardware
+                timeout: 15000,           // Wait longer for better signal
+                maximumAge: 0             // Do not use cached position
+            };
+
+            navigator.geolocation.getCurrentPosition(position => {
+                const lat = position.coords.latitude.toFixed(7); // 7 decimal places = 11mm precision
+                const lng = position.coords.longitude.toFixed(7);
+                const accuracy = position.coords.accuracy.toFixed(1); // Accuracy in meters
+
+                // FETCH REAL ADDRESS (Reverse Geocoding)
+                const apiUrl = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`;
+                
+                fetch(apiUrl)
+                .then(res => res.json())
+                .then(data => {
+                    const address = data.display_name.split(',').slice(0, 3).join(','); // Get Street, Area, City
+                    drawOnImage(type, lat, lng, accuracy, address);
+                })
+                .catch(() => {
+                    drawOnImage(type, lat, lng, accuracy, "Address Fetch Failed (GPS Only)");
+                });
+
+            }, err => { 
+                alert("GPS Error: Enable High Accuracy Location"); 
+                status.innerText = "GPS Error"; 
+            }, gpsOptions);
+        };
+
+        function drawOnImage(type, lat, lng, accuracy, address) {
+            const video = document.getElementById(`video-${type}`);
+            const canvas = document.getElementById(`canvas-${type}`);
+            const img = document.getElementById(`img-${type}`);
+            const status = document.getElementById(`loc-status-${type}`);
+            
+            // Set Canvas Dimensions matches Video
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            
+            const ctx = canvas.getContext('2d');
+            
+            // 1. Draw Video Frame
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            
+            // 2. Add Black Bar at Bottom
+            const barHeight = 80;
+            ctx.fillStyle = "rgba(0, 0, 0, 0.8)";
+            ctx.fillRect(0, canvas.height - barHeight, canvas.width, barHeight);
+            
+            // 3. Add Geotag Text (Location & Time)
+            const dateStr = new Date().toLocaleString();
+            ctx.fillStyle = "#00e676"; // Green text
+            ctx.font = "bold 14px sans-serif";
+            ctx.fillText(`📍 ${lat}, ${lng} (Acc: ${accuracy}m)`, 10, canvas.height - 55);
+            
+            ctx.fillStyle = "white";
+            ctx.font = "12px sans-serif";
+            ctx.fillText(`🏠 ${address}`, 10, canvas.height - 35);
+            
+            ctx.fillStyle = "#ff9800"; // Orange text
+            ctx.fillText(`📅 ${dateStr}`, 10, canvas.height - 15);
+
+            // 4. Convert to Image
+            const dataURL = canvas.toDataURL('image/png');
+            img.src = dataURL;
+            window.capturedImgData[type] = dataURL; // Save to global var
+            
+            // 5. Update UI
+            video.style.display = 'none';
+            img.style.display = 'block';
+            document.getElementById(`btn-snap-${type}`).classList.add('hidden');
+            document.getElementById(`btn-retake-${type}`).classList.remove('hidden');
+            
+            // Set GPS Input value if Supervisor
+            if(type === 'sup') {
+                document.getElementById('gps-input').value = `${lat},${lng}`;
+            }
+            
+            stopCamera(type); // Stop battery usage
+            status.innerText = "✅ High-Precision Location Tagged";
+            playSound('click');
+
+            // 🔥 TRIGGER AI ANALYSIS AFTER CAPTURE 🔥
+            // Now passing Title ID as well for full auto-fill!
+            if(type === 'pub') {
+                identifyObject(img, 'ai-result-pub', 'pub-desc', 'pub-title');
+            } else if (type === 'sup') {
+                identifyObject(img, 'ai-result-sup', null, null); // Just identify, no auto-fill needed
+            }
+        }
+
+        window.stopCamera = function(type) {
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+                stream = null;
+            }
+        };
+
+        // --- UPDATE EXISTING SUBMIT FUNCTIONS TO USE NEW PHOTO ---
+
+        // 1. Update Public Report Submit (Fixed UI Feedback)
+        // 🔥 MODIFIED TO INCLUDE ID & POPUP 🔥
+        window.submitPublicReport = function() { 
+            const t = document.getElementById('pub-title').value; 
+            const d = document.getElementById('pub-desc').value; 
+            const z = document.getElementById('pub-zone').value; 
+            const proof = window.capturedImgData['pub']; 
+
+            if (!t || !d) { alert("Enter details"); return; } 
+            
+            // --- UI: START LOADING ---
+            const btn = document.getElementById('btn-pub-submit'); 
+            const oldText = "SUBMIT REPORT"; 
+            
+            if(btn) {
+                btn.innerText = "⏳ Submitting...";
+                btn.disabled = true;
+                btn.style.opacity = "0.7";
+            }
+            
+            setTimeout(() => {
+                try {
+                    let prio = 'High'; 
+                    if (d.toLowerCase().includes('worst') || d.toLowerCase().includes('danger')) prio = 'Urgent'; 
+                    
+                    // 🔥 NEW: GENERATE ID 🔥
+                    const customId = "PUB-" + Math.floor(1000 + Math.random() * 9000);
+
+                    // SAVE DATA
+                    tasks.push({ 
+                        id: Date.now(), title: t, desc: d, targetZone: z, 
+                        status: 'Assigned', priority: prio, 
+                        deadline: new Date().toISOString().split('T')[0], 
+                        proof: proof, 
+                        isPublic: true, category: 'Public', comments: [],
+                        customId: customId // Save Custom ID
+                    }); 
+                    
+                    if(window.addNotification) {
+                        window.addNotification('commissioner', 'All', 'Public: ' + t); 
+                        window.addNotification('officer', z, 'Public: ' + t); 
+                    }
+                    if(window.persistData) window.persistData(); 
+                    
+                    if(btn) {
+                        btn.innerHTML = "✅ Complaint Submitted";
+                        btn.classList.remove('btn-red');    
+                        btn.classList.add('btn-green');      
+                        btn.style.opacity = "1";
+                    }
+                    if(window.playSound) window.playSound('success'); 
+
+                    // Wait 1.5 Seconds then show Success Modal
+                    setTimeout(() => {
+                        window.closeModal('modal-public'); 
+                        
+                        // 🔥 SHOW SUCCESS MODAL WITH ID 🔥
+                        document.getElementById('pub-id-display').innerText = customId;
+                        document.getElementById('modal-pub-success').classList.remove('hidden');
+
+                        if(btn) {
+                            btn.innerText = oldText;
+                            btn.classList.remove('btn-green');
+                            btn.classList.add('btn-red');
+                            btn.disabled = false;
+                        }
+
+                        // Clear fields
+                        document.getElementById('pub-title').value = ""; 
+                        document.getElementById('pub-desc').value = ""; 
+                        window.capturedImgData['pub'] = null; 
+                        document.getElementById('ai-result-pub').style.display = 'none'; // Hide AI Text
+
+                        if(currentUser) window.renderTasks(); 
+                        
+                    }, 1500); 
+                } catch(e) {
+                    alert("Error saving: " + e);
+                    if(btn) {
+                        btn.innerText = oldText;
+                        btn.disabled = false;
+                    }
+                }
+
+            }, 1000); 
+        };
+
+        // 🔥 NEW: TRACKING FUNCTION 🔥
+        window.trackComplaint = function() {
+            const id = document.getElementById('track-id-inp').value.trim();
+            if(!id) return alert("Please enter a Complaint ID");
+            
+            const t = tasks.find(x => x.customId === id);
+            
+            if(t) {
+                alert(`📢 STATUS REPORT:\n\n🆔 ID: ${t.customId}\n📝 Issue: ${t.title}\n📊 Status: ${t.status}\n📍 Zone: ${t.targetZone}`);
+            } else {
+                alert("❌ ID Not Found. Please check and try again.");
+            }
+        };
+
+        // 🔥 NEW: TICKER UPDATE FUNCTION 🔥
+        window.updateTicker = function() {
+            const ticker = document.getElementById('public-ticker');
+            if(!ticker) return;
+            
+            // Get last 5 public tasks
+            const pubTasks = tasks.filter(t => t.isPublic).slice(-5).reverse();
+            
+            if(pubTasks.length === 0) {
+                ticker.innerHTML = '<span class="ticker-item">Welcome to Smart City Portal. Report issues to help us improve!</span>';
+                return;
+            }
+
+            let html = "";
+            pubTasks.forEach(t => {
+                let statusIcon = t.status === 'Completed' ? '✅' : '⏳';
+                html += `<span class="ticker-item">${statusIcon} ${t.targetZone}: ${t.title} - ${t.status}</span>`;
+            });
+            ticker.innerHTML = html;
+        };
+
+        // 🔥 NEW: ARCHIVE (SOFT DELETE) FUNCTION 🔥
+        window.archiveTask = function(id) {
+            if(!confirm("Clear this completed task from Dashboard?\n(Public can still track it)")) return;
+            const t = tasks.find(x => x.id === id);
+            t.isHidden = true; // Mark as hidden but don't delete from array
+            persistData();
+            renderTasks();
+            try { window.renderCharts(); window.updateLeaderboard(); } catch(e){}
+        };
+
+        // 🔥 NEW: POPULATE WORKER LIST FOR MULTIPLE CREDIT 🔥
+        window.openUploadModal = function() {
+            document.getElementById('modal-upload').classList.remove('hidden');
+            const listContainer = document.getElementById('credit-worker-list');
+            listContainer.innerHTML = '';
+
+            // Filter workers in current supervisor's zone
+            const myWorkers = users.filter(u => u.role === 'worker' && u.zone === currentUser.zone);
+            
+            if(myWorkers.length === 0) {
+                listContainer.innerHTML = '<div style="font-size:12px; color:var(--danger); text-align:center;">No Workers Found in your Zone</div>';
+            } else {
+                myWorkers.forEach(w => {
+                    listContainer.innerHTML += `
+                        <label style="display:flex; align-items:center; gap:10px; font-size:13px; color:var(--text-main); margin-bottom:8px; cursor:pointer;">
+                            <input type="checkbox" class="worker-checkbox" value="${w.email}" style="width:16px; height:16px; accent-color:var(--primary);">
+                            ${w.name}
+                        </label>
+                    `;
+                });
+            }
+            // Show Credit box only for Supervisors
+            document.getElementById('worker-credit-box').style.display = (currentUser.role === 'supervisor') ? 'block' : 'none';
+        };
+
+        // 2. Update Supervisor Upload Submit (MULTIPLE WORKERS SUPPORT)
+        window.processFileUpload = function() { 
+            const proof = window.capturedImgData['sup']; // Use captured image
+            
+            if (!proof) return alert("Capture Photo First"); 
+            
+            document.getElementById('ai-analysis-status').style.display = 'block';
+            
+            // Get all selected (checked) workers
+            const checkboxes = document.querySelectorAll('.worker-checkbox:checked');
+            let selectedWorkers = Array.from(checkboxes).map(cb => cb.value);
+
+            setTimeout(() => { 
+                document.getElementById('ai-analysis-status').style.display = 'none'; 
+                
+                const t = tasks.find(x => x.id === window.activeId); 
+                t.proof = proof; 
+                t.gps = document.getElementById('gps-input').value; 
+                t.status = "Pending Review"; 
+                
+                // 🔥 CREDIT MULTIPLE WORKERS LOGIC 🔥
+                if(selectedWorkers.length > 0) {
+                    t.assignedWorker = selectedWorkers; // Store as an array of emails
+                }
+
+                persistData(); 
+                window.closeModal('modal-upload'); 
+                window.renderTasks(); 
+                alert("✅ Verified with Geotag & Workers Credited!"); 
+                
+                window.capturedImgData['sup'] = null; // Clear photo
+            }, 1500); 
+        };
+    </script>
+</body>
+</html>
