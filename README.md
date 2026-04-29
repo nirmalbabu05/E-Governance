@@ -48,20 +48,19 @@ The system bypasses sluggish cloud processing by integrating **Edge-AI (TensorFl
 
 ---
 
-## 💻 4. Running the Project Locally
-
-### 📦 1. Clone the Repository
-```bash
-git clone [https://github.com/nirmalbabu05/E-Governance.git.git](https://github.com/nirmalbabu05/E-Governance.git)
-cd E-Governance.git 
-
----
-
 ## 📜 License
 
 This project was built to showcase modern full-stack capabilities, AI integration, and premium UI/UX design.
 
 Made with ❤️ by **Nirmal Babu V M**
+
+
+### 📦 1. Clone the Repository
+```bash
+git clone [https://github.com/yourusername/smart-city-portal.git](https://github.com/yourusername/smart-city-portal.git)
+cd smart-city-portal
+
+
 
 
 
