@@ -53,13 +53,14 @@ Since this project relies on a serverless NoSQL architecture and Edge-AI, settin
 ```bash
 git clone [https://github.com/nirmalbabu05/E-Governance.git](https://github.com/nirmalbabu05/E-Governance.git)
 cd E-Governance
-
-**2️⃣ Start a local development server**
-If you are using VS Code, simply install the **Live Server** extension and click "Go Live" on `index.html`. Alternatively, you can use Python's built-in server:
-
+.
 
 ## 📜 License
 
 This project was built to showcase modern full-stack capabilities, AI integration, and premium UI/UX design.
 
 Made with ❤️ by Nirmal Babu V M
+
+
+
+
