@@ -53,13 +53,6 @@ Since this project relies on a serverless NoSQL architecture and Edge-AI, settin
 ```bash
 git clone [https://github.com/nirmalbabu05/E-Governance.git](https://github.com/nirmalbabu05/E-Governance.git)
 cd E-Governance
-.
-
-## 📜 License
-
-This project was built to showcase modern full-stack capabilities, AI integration, and premium UI/UX design.
-
-Made with ❤️ by Nirmal Babu V M
 
 
 
