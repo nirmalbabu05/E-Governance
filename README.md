@@ -54,24 +54,12 @@ Since this project relies on a serverless NoSQL architecture and Edge-AI, settin
 git clone [https://github.com/nirmalbabu05/E-Governance.git](https://github.com/nirmalbabu05/E-Governance.git)
 cd E-Governance
 
-**📂 2. Open the Project**
-Open the project folder in your favorite code editor (e.g., VS Code).
+**2️⃣ Start a local development server**
+If you are using VS Code, simply install the **Live Server** extension and click "Go Live" on `index.html`. Alternatively, you can use Python's built-in server:
 
-```bash
-code .
 
-**⚙️ 3. Start a Local Development Server**
-If you are using VS Code, install the Live Server extension and click "Go Live" on index.html. Alternatively, you can use Python's built-in server:
+## 📜 License
 
-Bash
-python -m http.server 8000
-
-**🌐 4. View in Browser**
-Open your browser and navigate to: http://localhost:8000/
-
-Note: Ensure you allow camera and location permissions in your browser for the Edge-AI and Geotagging features to function properly.
-
-📜 License
-This project was built as a final-year engineering endeavor to showcase modern full-stack capabilities, Edge-AI integration, and robust anti-fraud software architecture in the e-governance sector.
+This project was built to showcase modern full-stack capabilities, AI integration, and premium UI/UX design.
 
 Made with ❤️ by Nirmal Babu V M
